@@ -2,31 +2,31 @@ package symbols
 
 // Box drawing symbols
 const (
-	BoxDrawingTopLeft          = "┌"
-	BoxDrawingTopRight         = "┐"
-	BoxDrawingBottomLeft       = "└"
-	BoxDrawingBottomRight      = "┘"
-	BoxDrawingHorizontal       = "─"
-	BoxDrawingVertical         = "│"
-	BoxDrawingRoundTopLeft     = "╭"
-	BoxDrawingRoundTopRight    = "╮"
-	BoxDrawingRoundBottomLeft  = "╰"
-	BoxDrawingRoundBottomRight = "╯"
-	HLine                      = "─"
-	VLine                      = "│"
-	DottedVLine                = "╎"
-	LeftUp                     = "┌"
-	RightUp                    = "┐"
-	LeftDown                   = "└"
-	RightDown                  = "┘"
-	RoundLeftUp                = "╭"
-	RoundRightUp               = "╮"
-	RoundLeftDown              = "╰"
-	RoundRightDown             = "╯"
-	DivRight                   = "┤"
-	DivLeft                    = "├"
-	DivUp                      = "┬"
-	DivDown                    = "┴"
+	BoxDrawingTopLeft          = '┌'
+	BoxDrawingTopRight         = '┐'
+	BoxDrawingBottomLeft       = '└'
+	BoxDrawingBottomRight      = '┘'
+	BoxDrawingHorizontal       = '─'
+	BoxDrawingVertical         = '│'
+	BoxDrawingRoundTopLeft     = '╭'
+	BoxDrawingRoundTopRight    = '╮'
+	BoxDrawingRoundBottomLeft  = '╰'
+	BoxDrawingRoundBottomRight = '╯'
+	HLine                      = '─'
+	VLine                      = '│'
+	DottedVLine                = '╎'
+	TLCorner                   = '┌'
+	TRCorner                   = '┐'
+	BLCorner                   = '└'
+	BRCorner                   = '┘'
+	RoundLeftUp                = '╭'
+	RoundRightUp               = '╮'
+	RoundLeftDown              = '╰'
+	RoundRightDown             = '╯'
+	DivRight                   = '┤'
+	DivLeft                    = '├'
+	DivUp                      = '┬'
+	DivDown                    = '┴'
 )
 
 // Graph symbols
@@ -67,20 +67,20 @@ const (
 
 // Meter symbols
 const (
-	Meter = "█"
+	Meter = '█'
 )
 
 // Direction symbols
 const (
-	ArrowUp    = "↑"
-	ArrowDown  = "↓"
-	ArrowLeft  = "←"
-	ArrowRight = "→"
-	Up         = "↑"
-	Down       = "↓"
-	Left       = "←"
-	Right      = "→"
-	Enter      = "↵"
+	ArrowUp    = '↑'
+	ArrowDown  = '↓'
+	ArrowLeft  = '←'
+	ArrowRight = '→'
+	Up         = '↑'
+	Down       = '↓'
+	Left       = '←'
+	Right      = '→'
+	Enter      = '↵'
 )
 
 // BraillePatterns returns all braille patterns in order
