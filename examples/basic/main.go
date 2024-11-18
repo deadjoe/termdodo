@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/yourusername/termdodo/draw"
-	"github.com/yourusername/termdodo/theme"
-	"github.com/yourusername/termdodo/widgets"
+	"termdodo/draw"
+	"termdodo/theme"
+	"termdodo/widgets"
 )
 
 func main() {

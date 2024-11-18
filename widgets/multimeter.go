@@ -3,7 +3,7 @@ package widgets
 import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
-	"github.com/deadjoe/termdodo/theme"
+	"termdodo/theme"
 )
 
 // MeterItem represents a single meter in the multi meter widget
