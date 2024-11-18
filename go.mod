@@ -1,4 +1,4 @@
-module termdodo
+module github.com/deadjoe/termdodo
 
 go 1.21
 

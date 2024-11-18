@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"termdodo/draw"
-	"termdodo/theme"
-	"termdodo/widgets"
+	"github.com/deadjoe/termdodo/draw"
+	"github.com/deadjoe/termdodo/theme"
+	"github.com/deadjoe/termdodo/widgets"
 	"time"
 )
 

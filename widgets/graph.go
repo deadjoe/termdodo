@@ -2,8 +2,8 @@ package widgets
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"termdodo/symbols"
-	"termdodo/theme"
+	"github.com/deadjoe/termdodo/symbols"
+	"github.com/deadjoe/termdodo/theme"
 )
 
 // GraphStyle represents the style of graph to be drawn
