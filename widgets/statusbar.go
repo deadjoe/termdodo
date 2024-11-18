@@ -2,7 +2,7 @@ package widgets
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"termdodo/theme"
+	"github.com/deadjoe/termdodo/theme"
 	"strings"
 )
 
