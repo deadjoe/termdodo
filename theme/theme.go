@@ -3,12 +3,13 @@ package theme
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gdamore/tcell/v2"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/gdamore/tcell/v2"
 )
 
 // Color represents a terminal color

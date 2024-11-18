@@ -1,10 +1,11 @@
 package widgets
 
 import (
-	"github.com/deadjoe/termdodo/theme"
-	"github.com/gdamore/tcell/v2"
 	"sort"
 	"strings"
+
+	"github.com/deadjoe/termdodo/theme"
+	"github.com/gdamore/tcell/v2"
 )
 
 // Column represents a table column

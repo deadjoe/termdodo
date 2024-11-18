@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"fmt"
+
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/gdamore/tcell/v2"
 )

@@ -1,8 +1,8 @@
 package widgets
 
 import (
-	"github.com/deadjoe/termdodo/theme"
-	"github.com/gdamore/tcell/v2"
+	theme "github.com/deadjoe/termdodo/theme"
+	tcell "github.com/gdamore/tcell/v2"
 )
 
 // TreeNode represents a node in the tree
