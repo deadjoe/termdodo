@@ -5,8 +5,8 @@ import (
 	"math"
 
 	"github.com/gdamore/tcell/v2"
-	"termdodo/symbols"
-	"termdodo/theme"
+	"github.com/deadjoe/termdodo/symbols"
+	"github.com/deadjoe/termdodo/theme"
 )
 
 // Meter represents a percentage meter widget
