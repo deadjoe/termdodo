@@ -1,6 +1,8 @@
 package widgets
 
 import (
+	"strings"
+
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/gdamore/tcell/v2"
 )

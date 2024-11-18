@@ -2,7 +2,6 @@ package widgets
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/deadjoe/termdodo/symbols"
 	"github.com/deadjoe/termdodo/theme"

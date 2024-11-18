@@ -50,10 +50,8 @@ type Table struct {
 
 // NewTable creates a new table widget
 func NewTable(screen tcell.Screen, x, y, width, height int) *Table {
-	mainFg := theme.GetColor(theme.Current.MainFg)
 	mainBg := theme.GetColor(theme.Current.MainBg)
 	selectedColor := theme.GetColor(theme.Current.Selected)
-	titleColor := theme.GetColor(theme.Current.Title)
 
 	return &Table{
 		X:             x,
