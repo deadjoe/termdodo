@@ -1,5 +1,10 @@
 # Termdodo - Terminal UI Library
 
+[![Go](https://github.com/deadjoe/termdodo/actions/workflows/go.yml/badge.svg)](https://github.com/deadjoe/termdodo/actions/workflows/go.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/deadjoe/termdodo)](https://goreportcard.com/report/github.com/deadjoe/termdodo)
+[![codecov](https://codecov.io/gh/deadjoe/termdodo/branch/main/graph/badge.svg)](https://codecov.io/gh/deadjoe/termdodo)
+[![GoDoc](https://godoc.org/github.com/deadjoe/termdodo?status.svg)](https://godoc.org/github.com/deadjoe/termdodo)
+
 A powerful, theme-based terminal UI library written in Go, inspired by btop system monitoring tool.
 
 ## Features
