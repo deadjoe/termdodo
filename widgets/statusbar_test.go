@@ -7,6 +7,7 @@ import (
 )
 
 func TestNewStatusBar(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -23,6 +24,7 @@ func TestNewStatusBar(t *testing.T) {
 }
 
 func TestStatusBarSetItems(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -49,6 +51,7 @@ func TestStatusBarSetItems(t *testing.T) {
 }
 
 func TestStatusBarUpdateItem(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -74,6 +77,7 @@ func TestStatusBarUpdateItem(t *testing.T) {
 }
 
 func TestStatusBarClear(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -86,7 +90,7 @@ func TestStatusBarClear(t *testing.T) {
 	}
 	bar.SetItems(items)
 
-	bar.Clear()
+	bar.ClearItems()
 
 	if len(bar.Items) != 0 {
 		t.Errorf("Expected empty items after clear, got %d items", len(bar.Items))
@@ -94,6 +98,7 @@ func TestStatusBarClear(t *testing.T) {
 }
 
 func TestStatusBarSetSeparator(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)

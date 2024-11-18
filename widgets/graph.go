@@ -9,9 +9,13 @@ import (
 // GraphStyle represents the style of graph to be drawn
 type GraphStyle int
 
+// Graph styles
 const (
+	// GraphStyleBraille uses Braille characters for drawing the graph
 	GraphStyleBraille GraphStyle = iota
+	// GraphStyleBlock uses block characters for drawing the graph
 	GraphStyleBlock
+	// GraphStyleTTY uses TTY characters for drawing the graph
 	GraphStyleTTY
 )
 
@@ -35,7 +39,7 @@ func NewGraph(screen tcell.Screen, x, y, width, height int) *Graph {
 		Y:        y,
 		Width:    width,
 		Height:   height,
-		Style:    theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
+		Style:    theme.Current.GetStyle(),
 		Screen:   screen,
 		Data:     make([]float64, 0),
 		MaxValue: 100,
@@ -80,7 +84,7 @@ func (g *Graph) Draw() {
 		position := float64(height) / float64(g.Height)
 
 		// Get the color for this position
-		style := theme.GetGradientStyle(theme.Current.Graph, position)
+		style := theme.Current.GetGradientStyle(position)
 
 		// Draw the column
 		x := g.X + i

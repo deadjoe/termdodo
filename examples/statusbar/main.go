@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"os"
 	"time"
 
 	"github.com/deadjoe/termdodo/draw"
@@ -36,9 +34,9 @@ func main() {
 	statusBar := widgets.NewStatusBar(screen, 0, height-1, width)
 
 	// Add some status items
-	statusBar.AddItem("status", "Ready", tcell.StyleDefault)
-	statusBar.AddItem("time", "", tcell.StyleDefault)
-	statusBar.AddItem("help", "Press 'q' to quit", tcell.StyleDefault)
+	statusBar.AddItem(widgets.StatusItem{Text: "Ready", Style: tcell.StyleDefault})
+	statusBar.AddItem(widgets.StatusItem{Text: "", Style: tcell.StyleDefault})
+	statusBar.AddItem(widgets.StatusItem{Text: "Press 'q' to quit", Style: tcell.StyleDefault})
 
 	// Main loop
 	quit := make(chan struct{})
@@ -75,9 +73,9 @@ func main() {
 		case <-ticker.C:
 			count++
 			// Update status items
-			statusBar.UpdateItem("time", time.Now().Format("15:04:05"))
+			statusBar.UpdateItem(1, time.Now().Format("15:04:05"))
 			if count%5 == 0 {
-				statusBar.UpdateItem("status", fmt.Sprintf("Processing... %d", count))
+				statusBar.UpdateItem(0, fmt.Sprintf("Processing... %d", count))
 			}
 
 			// Draw everything

@@ -65,3 +65,24 @@ func (w *BaseWidget) Clear() {
 		}
 	}
 }
+
+// DrawBorder draws a border around the widget
+func DrawBorder(screen tcell.Screen, x, y, width, height int, style tcell.Style) {
+	// Draw corners
+	screen.SetContent(x, y, '┌', nil, style)
+	screen.SetContent(x+width-1, y, '┐', nil, style)
+	screen.SetContent(x, y+height-1, '└', nil, style)
+	screen.SetContent(x+width-1, y+height-1, '┘', nil, style)
+
+	// Draw horizontal lines
+	for i := x + 1; i < x+width-1; i++ {
+		screen.SetContent(i, y, '─', nil, style)
+		screen.SetContent(i, y+height-1, '─', nil, style)
+	}
+
+	// Draw vertical lines
+	for i := y + 1; i < y+height-1; i++ {
+		screen.SetContent(x, i, '│', nil, style)
+		screen.SetContent(x+width-1, i, '│', nil, style)
+	}
+}

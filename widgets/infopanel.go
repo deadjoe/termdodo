@@ -38,8 +38,8 @@ func NewInfoPanel(screen tcell.Screen, x, y, width, height int) *InfoPanel {
 		Width:      width,
 		Height:     height,
 		Screen:     screen,
-		Style:      theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
-		TitleStyle: theme.GetStyle(theme.Current.Title, theme.Current.MainBg),
+		Style:      theme.Current.GetStyle(),
+		TitleStyle: theme.Current.GetAccentStyle(),
 		ShowBorder: true,
 		LabelWidth: 20,
 	}
@@ -68,6 +68,16 @@ func (p *InfoPanel) ClearFields() {
 	p.Fields = nil
 }
 
+// UpdateField updates the value of a field with the given label
+func (p *InfoPanel) UpdateField(label, value string) {
+	for i, field := range p.Fields {
+		if field.Label == label {
+			p.Fields[i].Value = value
+			return
+		}
+	}
+}
+
 // Draw draws the info panel
 func (p *InfoPanel) Draw() {
 	if p.ShowBorder {
@@ -90,25 +100,7 @@ func (p *InfoPanel) Draw() {
 
 // drawBorder draws the panel border
 func (p *InfoPanel) drawBorder() {
-	style := p.Style
-
-	// Draw corners
-	p.Screen.SetContent(p.X, p.Y, '┌', nil, style)
-	p.Screen.SetContent(p.X+p.Width-1, p.Y, '┐', nil, style)
-	p.Screen.SetContent(p.X, p.Y+p.Height-1, '└', nil, style)
-	p.Screen.SetContent(p.X+p.Width-1, p.Y+p.Height-1, '┘', nil, style)
-
-	// Draw horizontal lines
-	for x := p.X + 1; x < p.X+p.Width-1; x++ {
-		p.Screen.SetContent(x, p.Y, '─', nil, style)
-		p.Screen.SetContent(x, p.Y+p.Height-1, '─', nil, style)
-	}
-
-	// Draw vertical lines
-	for y := p.Y + 1; y < p.Y+p.Height-1; y++ {
-		p.Screen.SetContent(p.X, y, '│', nil, style)
-		p.Screen.SetContent(p.X+p.Width-1, y, '│', nil, style)
-	}
+	DrawBorder(p.Screen, p.X, p.Y, p.Width, p.Height, p.Style)
 }
 
 // drawTitle draws the panel title

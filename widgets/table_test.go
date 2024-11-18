@@ -7,6 +7,7 @@ import (
 )
 
 func TestNewTable(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -23,6 +24,7 @@ func TestNewTable(t *testing.T) {
 }
 
 func TestTableSetColumns(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -52,6 +54,7 @@ func TestTableSetColumns(t *testing.T) {
 }
 
 func TestTableSetRows(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)

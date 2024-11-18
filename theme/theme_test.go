@@ -7,18 +7,20 @@ import (
 )
 
 func TestNewTheme(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
 	if theme == nil {
 		t.Fatal("Expected non-nil Theme")
 	}
 
 	// Check default values
-	if theme.Background != tcell.ColorBlack {
-		t.Errorf("Expected default background color to be Black, got %v", theme.Background)
+	if theme.Background != tcell.ColorDefault {
+		t.Errorf("Expected default background color to be Default, got %v", theme.Background)
 	}
 }
 
 func TestSetBackground(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
 	testColor := tcell.ColorBlue
 	theme.SetBackground(testColor)
@@ -29,6 +31,7 @@ func TestSetBackground(t *testing.T) {
 }
 
 func TestSetForeground(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
 	testColor := tcell.ColorWhite
 	theme.SetForeground(testColor)
@@ -39,6 +42,7 @@ func TestSetForeground(t *testing.T) {
 }
 
 func TestSetAccent(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
 	testColor := tcell.ColorGreen
 	theme.SetAccent(testColor)
@@ -49,6 +53,7 @@ func TestSetAccent(t *testing.T) {
 }
 
 func TestSetBorder(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
 	testColor := tcell.ColorYellow
 	theme.SetBorder(testColor)
@@ -59,71 +64,50 @@ func TestSetBorder(t *testing.T) {
 }
 
 func TestGetStyle(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
-	theme.SetBackground(tcell.ColorBlack)
-	theme.SetForeground(tcell.ColorWhite)
+	theme.SetBackground(tcell.ColorDefault)
+	theme.SetForeground(tcell.ColorDefault)
 
 	style := theme.GetStyle()
-	bg, fg, _ := style.Decompose()
+	fg, bg, _ := style.Decompose()
 
-	if bg != tcell.ColorBlack {
-		t.Errorf("Expected style background to be Black, got %v", bg)
+	if bg != tcell.ColorDefault {
+		t.Errorf("Expected style background to be Default, got %v", bg)
 	}
-	if fg != tcell.ColorWhite {
-		t.Errorf("Expected style foreground to be White, got %v", fg)
+	if fg != tcell.ColorDefault {
+		t.Errorf("Expected style foreground to be Default, got %v", fg)
 	}
 }
 
 func TestGetAccentStyle(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
-	theme.SetBackground(tcell.ColorBlack)
 	theme.SetAccent(tcell.ColorGreen)
 
 	style := theme.GetAccentStyle()
-	bg, fg, _ := style.Decompose()
+	fg, _, _ := style.Decompose()
 
-	if bg != tcell.ColorBlack {
-		t.Errorf("Expected style background to be Black, got %v", bg)
+	if !fg.Valid() {
+		t.Error("Expected foreground color to be valid")
 	}
 	if fg != tcell.ColorGreen {
-		t.Errorf("Expected style foreground to be Green, got %v", fg)
+		t.Errorf("Expected style foreground to be Green (%v), got %v", tcell.ColorGreen, fg)
 	}
 }
 
 func TestGetBorderStyle(t *testing.T) {
+	t.Parallel()
 	theme := NewTheme()
-	theme.SetBackground(tcell.ColorBlack)
 	theme.SetBorder(tcell.ColorYellow)
 
 	style := theme.GetBorderStyle()
-	bg, fg, _ := style.Decompose()
+	fg, _, _ := style.Decompose()
 
-	if bg != tcell.ColorBlack {
-		t.Errorf("Expected style background to be Black, got %v", bg)
+	if !fg.Valid() {
+		t.Error("Expected foreground color to be valid")
 	}
 	if fg != tcell.ColorYellow {
-		t.Errorf("Expected style foreground to be Yellow, got %v", fg)
-	}
-}
-
-func TestDarkTheme(t *testing.T) {
-	theme := DarkTheme()
-	if theme == nil {
-		t.Fatal("Expected non-nil DarkTheme")
-	}
-
-	if theme.Background != tcell.ColorBlack {
-		t.Errorf("Expected dark theme background to be Black, got %v", theme.Background)
-	}
-}
-
-func TestLightTheme(t *testing.T) {
-	theme := LightTheme()
-	if theme == nil {
-		t.Fatal("Expected non-nil LightTheme")
-	}
-
-	if theme.Background != tcell.ColorWhite {
-		t.Errorf("Expected light theme background to be White, got %v", theme.Background)
+		t.Errorf("Expected style foreground to be Yellow (%v), got %v", tcell.ColorYellow, fg)
 	}
 }

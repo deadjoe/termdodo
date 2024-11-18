@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/deadjoe/termdodo/draw"
 	"github.com/deadjoe/termdodo/theme"

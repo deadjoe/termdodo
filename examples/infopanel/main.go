@@ -36,12 +36,12 @@ func main() {
 		mainBox.InnerHeight())
 
 	// Add some info items
-	panel.AddItem("CPU", "Intel i7-9700K")
-	panel.AddItem("Memory", "32GB DDR4")
-	panel.AddItem("Disk", "1TB NVMe SSD")
-	panel.AddItem("OS", "Linux 5.15.0")
-	panel.AddItem("Uptime", "2d 5h 30m")
-	panel.AddItem("Load Avg", "1.25 0.75 0.50")
+	panel.AddField("CPU", "Intel i7-9700K")
+	panel.AddField("Memory", "32GB DDR4")
+	panel.AddField("Disk", "1TB NVMe SSD")
+	panel.AddField("OS", "Linux 5.15.0")
+	panel.AddField("Uptime", "2d 5h 30m")
+	panel.AddField("Load Avg", "1.25 0.75 0.50")
 
 	// Main loop
 	quit := make(chan struct{})
@@ -70,7 +70,7 @@ func main() {
 			return
 		case <-ticker.C:
 			// Update some dynamic info
-			panel.UpdateItem("Uptime", time.Now().Format("15:04:05"))
+			panel.UpdateField("Uptime", time.Now().Format("15:04:05"))
 
 			// Draw everything
 			screen.Clear()

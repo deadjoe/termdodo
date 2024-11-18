@@ -17,23 +17,28 @@ type StatusItem struct {
 
 // StatusBar represents a status bar widget
 type StatusBar struct {
-	X, Y    int
-	Width   int
-	Screen  tcell.Screen
-	Style   tcell.Style
-	Items   []StatusItem
-	Padding int
+	X, Y          int
+	Width, Height int
+	Screen        tcell.Screen
+	Style         tcell.Style
+
+	Items     []StatusItem
+	Separator string
+	Padding   int
 }
 
 // NewStatusBar creates a new status bar widget
 func NewStatusBar(screen tcell.Screen, x, y, width int) *StatusBar {
 	return &StatusBar{
-		X:       x,
-		Y:       y,
-		Width:   width,
-		Screen:  screen,
-		Style:   theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
-		Padding: 1,
+		X:         x,
+		Y:         y,
+		Width:     width,
+		Height:    1,
+		Screen:    screen,
+		Style:     theme.Current.GetStyle(),
+		Items:     nil,
+		Separator: " | ",
+		Padding:   1,
 	}
 }
 
@@ -50,6 +55,16 @@ func (s *StatusBar) AddItem(item StatusItem) {
 // ClearItems clears all items from the status bar
 func (s *StatusBar) ClearItems() {
 	s.Items = nil
+}
+
+// UpdateItem updates an item at the specified index
+func (s *StatusBar) UpdateItem(index int, text string, style ...tcell.Style) {
+	if index >= 0 && index < len(s.Items) {
+		s.Items[index].Text = text
+		if len(style) > 0 {
+			s.Items[index].Style = style[0]
+		}
+	}
 }
 
 // calculateItemWidths calculates the minimum and flexible widths for all items
@@ -137,20 +152,31 @@ func (s *StatusBar) Draw() {
 
 	// Calculate and distribute extra width
 	availableWidth := s.Width
-	extraWidth := availableWidth - totalMinWidth
+	extraWidth := availableWidth - totalMinWidth - (len(s.Items)-1)*len(s.Separator)
 	s.distributeExtraWidth(extraWidth, totalFlexWidth)
 
 	// Draw items
 	x := s.X
-	for _, item := range s.Items {
+	for i, item := range s.Items {
 		width := s.drawItem(x, item)
 		x += width
+		if i < len(s.Items)-1 {
+			for j, r := range s.Separator {
+				s.Screen.SetContent(x+j, s.Y, r, nil, s.Style)
+			}
+			x += len(s.Separator)
+		}
 	}
 }
 
 // SetStyle sets the default style for the status bar
 func (s *StatusBar) SetStyle(style tcell.Style) {
 	s.Style = style
+}
+
+// SetSeparator sets the separator between status items
+func (s *StatusBar) SetSeparator(sep string) {
+	s.Separator = sep
 }
 
 // SetPadding sets the padding between items
@@ -164,7 +190,7 @@ func (s *StatusBar) GetWidth() int {
 	for _, item := range s.Items {
 		width += item.MinWidth
 	}
-	return width
+	return width + (len(s.Items)-1)*len(s.Separator)
 }
 
 // GetHeight returns the height of the status bar (always 1)

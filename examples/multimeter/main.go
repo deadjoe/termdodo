@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/deadjoe/termdodo/draw"
@@ -40,15 +38,15 @@ func main() {
 		mainBox.InnerHeight())
 
 	// Add meters with labels
-	mm.AddMeter("CPU", 0.0)
-	mm.AddMeter("Memory", 0.0)
-	mm.AddMeter("Disk", 0.0)
-	mm.AddMeter("Network", 0.0)
+	mm.AddItem(widgets.MeterItem{Label: "CPU", Value: 0.0})
+	mm.AddItem(widgets.MeterItem{Label: "Memory", Value: 0.0})
+	mm.AddItem(widgets.MeterItem{Label: "Disk", Value: 0.0})
+	mm.AddItem(widgets.MeterItem{Label: "Network", Value: 0.0})
 
 	// Configure display options
-	mm.SetShowPercentage(true)
-	mm.SetBlockStyle(true)
-	mm.SetBlockSpacing(1)
+	mm.SetShowValues(true)
+	mm.SetShowLabels(true)
+	mm.SetSpacing(1)
 
 	// Main loop
 	quit := make(chan struct{})
@@ -67,11 +65,12 @@ func main() {
 		}
 	}()
 
+	// Initialize random number generator
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	// Update loop
 	ticker := time.NewTicker(time.Millisecond * 100)
 	defer ticker.Stop()
-
-	rand.Seed(time.Now().UnixNano())
 
 	for {
 		select {
@@ -79,10 +78,10 @@ func main() {
 			return
 		case <-ticker.C:
 			// Update meters with random values
-			mm.UpdateMeter("CPU", rand.Float64())
-			mm.UpdateMeter("Memory", rand.Float64())
-			mm.UpdateMeter("Disk", rand.Float64())
-			mm.UpdateMeter("Network", rand.Float64())
+			mm.UpdateMeter("CPU", r.Float64())
+			mm.UpdateMeter("Memory", r.Float64())
+			mm.UpdateMeter("Disk", r.Float64())
+			mm.UpdateMeter("Network", r.Float64())
 
 			// Draw everything
 			screen.Clear()

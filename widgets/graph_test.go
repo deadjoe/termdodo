@@ -6,6 +6,7 @@ import (
 )
 
 func TestNewGraph(t *testing.T) {
+	t.Parallel()
 	// Create a new screen simulation
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
@@ -31,6 +32,7 @@ func TestNewGraph(t *testing.T) {
 }
 
 func TestGraphSetData(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -54,6 +56,7 @@ func TestGraphSetData(t *testing.T) {
 }
 
 func TestGraphStyles(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -88,6 +91,7 @@ func TestGraphStyles(t *testing.T) {
 }
 
 func TestGraphClear(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)

@@ -40,8 +40,8 @@ func NewTreeView(screen tcell.Screen, x, y, width, height int) *TreeView {
 		Width:         width,
 		Height:        height,
 		Screen:        screen,
-		Style:         theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
-		SelectedStyle: theme.GetStyle(theme.Current.Selected, theme.Current.HighlightBg),
+		Style:         theme.GetStyle(theme.ColorToHex(theme.Current.MainFg), theme.ColorToHex(theme.Current.MainBg)),
+		SelectedStyle: theme.GetStyle(theme.ColorToHex(theme.Current.Selected), theme.ColorToHex(theme.Current.HighlightBg)),
 		ShowLines:     true,
 		Indent:        2,
 	}
@@ -60,138 +60,121 @@ func (t *TreeView) Draw() {
 		return
 	}
 
-	// Reset visible nodes count
 	t.VisibleNodes = 0
-
-	// Draw nodes starting from root
-	t.drawNode(t.Root, t.X, t.Y, 0)
+	t.drawNode(t.Root, t.X, t.Y, false)
 }
 
 // getNodeStyle returns the appropriate style for a node
 func (t *TreeView) getNodeStyle(node *TreeNode) tcell.Style {
-	if node == t.Selected {
-		return t.SelectedStyle
-	}
+	style := t.Style
 	if node.Style != (tcell.Style{}) {
-		return node.Style
+		style = node.Style
 	}
-	return t.Style
-}
-
-// drawTreeLines draws the tree connection lines
-func (t *TreeView) drawTreeLines(x, y, level int, node *TreeNode) {
-	if !t.ShowLines || level == 0 {
-		return
+	if node == t.Selected {
+		style = style.Reverse(true)
 	}
-
-	// Draw vertical lines for previous levels
-	lineX := x
-	for i := 0; i < level*t.Indent; i++ {
-		char := ' '
-		if i%t.Indent == 0 && i < (level-1)*t.Indent {
-			char = '│'
-		}
-		t.Screen.SetContent(lineX+i, y, char, nil, t.Style)
-	}
-
-	// Draw connection to parent
-	if node.Parent != nil {
-		isLast := node == node.Parent.Children[len(node.Parent.Children)-1]
-		connX := x + (level-1)*t.Indent
-		if isLast {
-			t.Screen.SetContent(connX, y, '└', nil, t.Style)
-		} else {
-			t.Screen.SetContent(connX, y, '├', nil, t.Style)
-		}
-		for i := 1; i < t.Indent; i++ {
-			t.Screen.SetContent(connX+i, y, '─', nil, t.Style)
-		}
-	}
-}
-
-// drawNodeText draws the node text and expand/collapse indicator
-func (t *TreeView) drawNodeText(x, y, level int, node *TreeNode, style tcell.Style) {
-	// Draw expand/collapse indicator
-	textX := x + level*t.Indent
-	if len(node.Children) > 0 {
-		if node.Expanded {
-			t.Screen.SetContent(textX, y, '▼', nil, style)
-		} else {
-			t.Screen.SetContent(textX, y, '▶', nil, style)
-		}
-		textX += 2
-	}
-
-	// Draw node text
-	for i, r := range node.Text {
-		if textX+i >= t.X+t.Width {
-			break
-		}
-		t.Screen.SetContent(textX+i, y, r, nil, style)
-	}
+	return style
 }
 
 // drawNode recursively draws a node and its children
-func (t *TreeView) drawNode(node *TreeNode, x, y, level int) {
-	if t.VisibleNodes-t.ScrollOffset >= t.Height {
-		return
+func (t *TreeView) drawNode(node *TreeNode, x, y int, isLast bool) int {
+	if y >= t.Y+t.Height {
+		return y
 	}
 
-	if t.VisibleNodes >= t.ScrollOffset {
-		// Calculate actual y position
-		actualY := y + t.VisibleNodes - t.ScrollOffset
-
-		// Get node style
+	if y >= t.Y {
+		t.VisibleNodes++
+		// Draw node content
 		style := t.getNodeStyle(node)
 
 		// Draw tree lines
-		t.drawTreeLines(x, actualY, level, node)
+		if t.ShowLines && node != t.Root {
+			for i := t.X; i < x-t.Indent; i += t.Indent {
+				t.Screen.SetContent(i, y, '│', nil, t.Style)
+			}
+			if isLast {
+				t.Screen.SetContent(x-t.Indent, y, '└', nil, t.Style)
+			} else {
+				t.Screen.SetContent(x-t.Indent, y, '├', nil, t.Style)
+			}
+			for i := x - t.Indent + 1; i < x; i++ {
+				t.Screen.SetContent(i, y, '─', nil, t.Style)
+			}
+		}
 
-		// Draw node text and expand/collapse indicator
-		t.drawNodeText(x, actualY, level, node, style)
-	}
+		// Draw expand/collapse indicator
+		if len(node.Children) > 0 {
+			if node.Expanded {
+				t.Screen.SetContent(x, y, '-', nil, style)
+			} else {
+				t.Screen.SetContent(x, y, '+', nil, style)
+			}
+			x += 2
+		}
 
-	t.VisibleNodes++
-
-	// Draw children if expanded
-	if node.Expanded {
-		for _, child := range node.Children {
-			t.drawNode(child, x, y, level+1)
+		// Draw node text
+		for i, r := range node.Text {
+			if x+i >= t.X+t.Width {
+				break
+			}
+			t.Screen.SetContent(x+i, y, r, nil, style)
 		}
 	}
+
+	y++
+
+	if node.Expanded {
+		childX := x + t.Indent
+		for i, child := range node.Children {
+			isLastChild := i == len(node.Children)-1
+			y = t.drawNode(child, childX, y, isLastChild)
+		}
+	}
+
+	return y
 }
 
-// HandleEvent handles keyboard events
-func (t *TreeView) HandleEvent(ev *tcell.EventKey) bool {
+// HandleKeyEvent handles keyboard events for the tree view
+func (t *TreeView) HandleKeyEvent(event *tcell.EventKey) bool {
 	if t.Root == nil {
 		return false
 	}
 
-	switch ev.Key() {
+	if t.Selected == nil {
+		t.Selected = t.Root
+	}
+
+	switch event.Key() {
 	case tcell.KeyUp:
-		return t.selectPrevious()
+		return t.SelectPrevious()
 	case tcell.KeyDown:
-		return t.selectNext()
-	case tcell.KeyRight:
-		if t.Selected != nil {
-			t.Selected.Expanded = true
+		return t.SelectNext()
+	case tcell.KeyLeft:
+		if t.Selected.Expanded {
+			t.Selected.Expanded = false
+			return true
+		} else if t.Selected.Parent != nil {
+			t.Selected = t.Selected.Parent
 			return true
 		}
-	case tcell.KeyLeft:
-		if t.Selected != nil {
-			if t.Selected.Expanded && len(t.Selected.Children) > 0 {
-				t.Selected.Expanded = false
-			} else if t.Selected.Parent != nil {
-				t.Selected = t.Selected.Parent
-			}
+	case tcell.KeyRight:
+		if !t.Selected.Expanded && len(t.Selected.Children) > 0 {
+			t.Selected.Expanded = true
+			return true
+		} else if t.Selected.Expanded && len(t.Selected.Children) > 0 {
+			t.Selected = t.Selected.Children[0]
 			return true
 		}
 	}
 	return false
 }
 
-// selectNext selects the next visible node
-func (t *TreeView) selectNext() bool {
+// SelectNext selects the next visible node in the tree
+func (t *TreeView) SelectNext() bool {
+	if t.Root == nil {
+		return false
+	}
+
 	if t.Selected == nil {
 		t.Selected = t.Root
 		return true
@@ -203,55 +186,67 @@ func (t *TreeView) selectNext() bool {
 		return true
 	}
 
-	// Otherwise, find next sibling or parent's next sibling
+	// Try to find next sibling or ancestor's sibling
 	current := t.Selected
 	for current != nil {
-		if current.Parent == nil {
+		parent := current.Parent
+		if parent == nil {
 			return false
 		}
 
-		siblings := current.Parent.Children
+		siblings := parent.Children
 		for i, sibling := range siblings {
 			if sibling == current && i < len(siblings)-1 {
 				t.Selected = siblings[i+1]
 				return true
 			}
 		}
-		current = current.Parent
+		current = parent
 	}
 
 	return false
 }
 
-// selectPrevious selects the previous visible node
-func (t *TreeView) selectPrevious() bool {
-	if t.Selected == nil || t.Selected == t.Root {
+// SelectPrevious selects the previous visible node
+func (t *TreeView) SelectPrevious() bool {
+	if t.Root == nil {
 		return false
 	}
 
-	siblings := t.Selected.Parent.Children
-	for i, sibling := range siblings {
+	if t.Selected == nil {
+		t.Selected = t.Root
+		return true
+	}
+
+	// If at root, cannot go up further
+	if t.Selected == t.Root {
+		return false
+	}
+
+	parent := t.Selected.Parent
+	if parent == nil {
+		return false
+	}
+
+	// Find current node's position among siblings
+	for i, sibling := range parent.Children {
 		if sibling == t.Selected {
 			if i > 0 {
-				// Select the last visible child of the previous sibling
-				t.Selected = t.getLastVisibleNode(siblings[i-1])
+				// Select the previous sibling's deepest visible node
+				prev := parent.Children[i-1]
+				for prev.Expanded && len(prev.Children) > 0 {
+					prev = prev.Children[len(prev.Children)-1]
+				}
+				t.Selected = prev
 			} else {
-				// Select parent
-				t.Selected = t.Selected.Parent
+				// If first child, select parent
+				t.Selected = parent
 			}
 			return true
 		}
 	}
 
 	return false
-}
-
-// getLastVisibleNode returns the last visible node in a subtree
-func (t *TreeView) getLastVisibleNode(node *TreeNode) *TreeNode {
-	if !node.Expanded || len(node.Children) == 0 {
-		return node
-	}
-	return t.getLastVisibleNode(node.Children[len(node.Children)-1])
 }
 
 // GetSelected returns the currently selected node
@@ -266,6 +261,9 @@ func (t *TreeView) SetShowLines(show bool) {
 
 // SetIndent sets the indentation level
 func (t *TreeView) SetIndent(indent int) {
+	if indent < 0 {
+		indent = 0
+	}
 	t.Indent = indent
 }
 
@@ -303,30 +301,92 @@ func (t *TreeView) collapseNode(node *TreeNode) {
 
 // AddNode adds a child node to the specified parent
 func (t *TreeView) AddNode(parent *TreeNode, text string) *TreeNode {
-	node := &TreeNode{
-		Text:     text,
-		Parent:   parent,
-		Expanded: false,
-	}
 	if parent == nil {
-		t.Root = node
-	} else {
-		parent.Children = append(parent.Children, node)
+		return nil
+	}
+	node := &TreeNode{
+		Text:   text,
+		Parent: parent,
+		Style:  t.Style,
+	}
+	parent.Children = append(parent.Children, node)
+	if t.Selected == nil {
+		t.Selected = node
 	}
 	return node
 }
 
 // RemoveNode removes a node and its children from the tree
 func (t *TreeView) RemoveNode(node *TreeNode) {
-	if node == nil || node.Parent == nil {
+	if node == nil {
 		return
 	}
 
-	siblings := node.Parent.Children
-	for i, sibling := range siblings {
-		if sibling == node {
-			node.Parent.Children = append(siblings[:i], siblings[i+1:]...)
-			break
+	// If removing the root node
+	if node == t.Root {
+		t.Root = nil
+		t.Selected = nil
+		return
+	}
+
+	// Find and remove the node from its parent's children
+	if node.Parent != nil {
+		children := node.Parent.Children
+		for i, child := range children {
+			if child == node {
+				// Remove the node from its parent's children
+				node.Parent.Children = append(children[:i], children[i+1:]...)
+
+				// Clear the parent reference
+				node.Parent = nil
+
+				// If the removed node was selected, select the parent
+				if node == t.Selected {
+					t.Selected = node.Parent
+				}
+
+				break
+			}
 		}
 	}
+
+	// Clear all parent references in the removed subtree
+	var clearParents func(*TreeNode)
+	clearParents = func(n *TreeNode) {
+		if n == nil {
+			return
+		}
+		n.Parent = nil
+		for _, child := range n.Children {
+			clearParents(child)
+		}
+	}
+	clearParents(node)
+}
+
+// ExpandSelected expands the currently selected node
+func (t *TreeView) ExpandSelected() bool {
+	if t.Selected != nil {
+		t.Selected.Expanded = true
+		return true
+	}
+	return false
+}
+
+// CollapseSelected collapses the currently selected node
+func (t *TreeView) CollapseSelected() bool {
+	if t.Selected != nil {
+		t.Selected.Expanded = false
+		return true
+	}
+	return false
+}
+
+// ToggleSelected toggles the expanded state of the currently selected node
+func (t *TreeView) ToggleSelected() bool {
+	if t.Selected != nil {
+		t.Selected.Expanded = !t.Selected.Expanded
+		return true
+	}
+	return false
 }

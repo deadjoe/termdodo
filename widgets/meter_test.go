@@ -7,6 +7,7 @@ import (
 )
 
 func TestNewMeter(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -23,6 +24,7 @@ func TestNewMeter(t *testing.T) {
 }
 
 func TestMeterSetValue(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -50,6 +52,7 @@ func TestMeterSetValue(t *testing.T) {
 }
 
 func TestMeterSetShowPercentage(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -58,17 +61,18 @@ func TestMeterSetShowPercentage(t *testing.T) {
 	meter := NewMeter(screen, 0, 0, 50)
 
 	meter.SetShowPercentage(true)
-	if !meter.ShowPercentage {
+	if !meter.ShowPct {
 		t.Error("Expected ShowPercentage to be true")
 	}
 
 	meter.SetShowPercentage(false)
-	if meter.ShowPercentage {
+	if meter.ShowPct {
 		t.Error("Expected ShowPercentage to be false")
 	}
 }
 
 func TestMeterSetLabel(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)

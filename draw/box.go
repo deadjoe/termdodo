@@ -3,7 +3,7 @@ package draw
 import (
 	"github.com/deadjoe/termdodo/symbols"
 	"github.com/deadjoe/termdodo/theme"
-	"github.com/gdamore/tcell/v2"
+	tcell "github.com/gdamore/tcell/v2"
 )
 
 // Box represents a box widget with borders
@@ -18,14 +18,15 @@ type Box struct {
 
 // NewBox creates a new box widget
 func NewBox(screen tcell.Screen, x, y, width, height int) *Box {
-	return &Box{
+	box := &Box{
 		X:      x,
 		Y:      y,
 		Width:  width,
 		Height: height,
 		Screen: screen,
-		Style:  theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
 	}
+	box.Style = theme.Current.GetStyle()
+	return box
 }
 
 // SetTitle sets the box title
@@ -66,7 +67,7 @@ func (b *Box) InnerHeight() int {
 // Draw draws the box on the screen
 func (b *Box) Draw() {
 	// Get box characters based on style
-	var topLeft, topRight, bottomLeft, bottomRight, horizontal, vertical string
+	var topLeft, topRight, bottomLeft, bottomRight, horizontal, vertical rune
 	if b.Round {
 		topLeft = symbols.BoxDrawingRoundTopLeft
 		topRight = symbols.BoxDrawingRoundTopRight
@@ -82,26 +83,26 @@ func (b *Box) Draw() {
 	vertical = symbols.BoxDrawingVertical
 
 	// Draw corners
-	b.drawRune(b.X, b.Y, []rune(topLeft)[0])
-	b.drawRune(b.X+b.Width-1, b.Y, []rune(topRight)[0])
-	b.drawRune(b.X, b.Y+b.Height-1, []rune(bottomLeft)[0])
-	b.drawRune(b.X+b.Width-1, b.Y+b.Height-1, []rune(bottomRight)[0])
+	b.drawRune(b.X, b.Y, topLeft)
+	b.drawRune(b.X+b.Width-1, b.Y, topRight)
+	b.drawRune(b.X, b.Y+b.Height-1, bottomLeft)
+	b.drawRune(b.X+b.Width-1, b.Y+b.Height-1, bottomRight)
 
 	// Draw horizontal borders
 	for x := b.X + 1; x < b.X+b.Width-1; x++ {
-		b.drawRune(x, b.Y, []rune(horizontal)[0])
-		b.drawRune(x, b.Y+b.Height-1, []rune(horizontal)[0])
+		b.drawRune(x, b.Y, horizontal)
+		b.drawRune(x, b.Y+b.Height-1, horizontal)
 	}
 
 	// Draw vertical borders
 	for y := b.Y + 1; y < b.Y+b.Height-1; y++ {
-		b.drawRune(b.X, y, []rune(vertical)[0])
-		b.drawRune(b.X+b.Width-1, y, []rune(vertical)[0])
+		b.drawRune(b.X, y, vertical)
+		b.drawRune(b.X+b.Width-1, y, vertical)
 	}
 
 	// Draw title if set
 	if b.Title != "" {
-		titleStyle := theme.GetStyle(theme.Current.Title, theme.Current.MainBg)
+		titleStyle := theme.Current.GetAccentStyle()
 		titleX := b.X + (b.Width-len(b.Title))/2
 		for i, r := range b.Title {
 			b.Screen.SetContent(titleX+i, b.Y, r, nil, titleStyle)

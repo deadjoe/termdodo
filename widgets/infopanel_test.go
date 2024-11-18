@@ -7,6 +7,7 @@ import (
 )
 
 func TestNewInfoPanel(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -23,6 +24,7 @@ func TestNewInfoPanel(t *testing.T) {
 }
 
 func TestInfoPanelSetTitle(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -37,74 +39,67 @@ func TestInfoPanelSetTitle(t *testing.T) {
 	}
 }
 
-func TestInfoPanelSetItems(t *testing.T) {
+func TestInfoPanelSetFields(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
 	}
 
 	panel := NewInfoPanel(screen, 0, 0, 80, 10)
-	items := []InfoItem{
+	fields := []InfoField{
 		{Label: "CPU", Value: "45%"},
 		{Label: "Memory", Value: "2.5GB"},
 		{Label: "Disk", Value: "120GB"},
 	}
+	panel.SetFields(fields)
 
-	panel.SetItems(items)
-
-	if len(panel.Items) != len(items) {
-		t.Errorf("Expected %d items, got %d", len(items), len(panel.Items))
+	if len(panel.Fields) != len(fields) {
+		t.Errorf("Expected %d fields, got %d", len(fields), len(panel.Fields))
 	}
 
-	for i, item := range panel.Items {
-		if item.Label != items[i].Label {
-			t.Errorf("Item %d: expected label %q, got %q", i, items[i].Label, item.Label)
-		}
-		if item.Value != items[i].Value {
-			t.Errorf("Item %d: expected value %q, got %q", i, items[i].Value, item.Value)
+	for i, field := range fields {
+		if panel.Fields[i].Label != field.Label || panel.Fields[i].Value != field.Value {
+			t.Errorf("Field %d mismatch: expected %+v, got %+v", i, field, panel.Fields[i])
 		}
 	}
 }
 
-func TestInfoPanelUpdateItem(t *testing.T) {
+func TestInfoPanelAddField(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
 	}
 
 	panel := NewInfoPanel(screen, 0, 0, 80, 10)
-	items := []InfoItem{
-		{Label: "CPU", Value: "45%"},
-		{Label: "Memory", Value: "2.5GB"},
-	}
-	panel.SetItems(items)
+	label := "CPU"
+	value := "45%"
+	panel.AddField(label, value)
 
-	// Test updating existing item
-	panel.UpdateItem("CPU", "55%")
-	if panel.Items[0].Value != "55%" {
-		t.Errorf("Expected updated CPU value to be '55%%', got %q", panel.Items[0].Value)
+	if len(panel.Fields) != 1 {
+		t.Errorf("Expected 1 field, got %d", len(panel.Fields))
 	}
 
-	// Test updating non-existent item (should not panic)
-	panel.UpdateItem("NonExistent", "value")
+	field := panel.Fields[0]
+	if field.Label != label || field.Value != value {
+		t.Errorf("Field mismatch: expected {%q, %q}, got {%q, %q}", label, value, field.Label, field.Value)
+	}
 }
 
 func TestInfoPanelClear(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
 	}
 
 	panel := NewInfoPanel(screen, 0, 0, 80, 10)
-	items := []InfoItem{
-		{Label: "CPU", Value: "45%"},
-		{Label: "Memory", Value: "2.5GB"},
-	}
-	panel.SetItems(items)
+	panel.AddField("CPU", "45%")
+	panel.AddField("Memory", "2.5GB")
+	panel.ClearFields()
 
-	panel.Clear()
-
-	if len(panel.Items) != 0 {
-		t.Errorf("Expected empty items after clear, got %d items", len(panel.Items))
+	if len(panel.Fields) != 0 {
+		t.Errorf("Expected no fields after clear, got %d", len(panel.Fields))
 	}
 }

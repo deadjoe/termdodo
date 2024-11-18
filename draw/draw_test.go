@@ -6,7 +6,8 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func TestDrawHLine(t *testing.T) {
+func TestHLine(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -14,9 +15,8 @@ func TestDrawHLine(t *testing.T) {
 	screen.SetSize(100, 100)
 
 	style := tcell.StyleDefault
-	DrawHLine(screen, 0, 0, 10, style)
+	HLine(screen, 0, 0, 10, style)
 
-	// Check first and last cells
 	mainc, _, _, _ := screen.GetContent(0, 0)
 	if mainc != '─' {
 		t.Errorf("Expected horizontal line character at start, got %c", mainc)
@@ -28,7 +28,8 @@ func TestDrawHLine(t *testing.T) {
 	}
 }
 
-func TestDrawVLine(t *testing.T) {
+func TestVLine(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -36,9 +37,8 @@ func TestDrawVLine(t *testing.T) {
 	screen.SetSize(100, 100)
 
 	style := tcell.StyleDefault
-	DrawVLine(screen, 0, 0, 10, style)
+	VLine(screen, 0, 0, 10, style)
 
-	// Check first and last cells
 	mainc, _, _, _ := screen.GetContent(0, 0)
 	if mainc != '│' {
 		t.Errorf("Expected vertical line character at start, got %c", mainc)
@@ -50,7 +50,8 @@ func TestDrawVLine(t *testing.T) {
 	}
 }
 
-func TestDrawBox(t *testing.T) {
+func TestRect(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -58,28 +59,32 @@ func TestDrawBox(t *testing.T) {
 	screen.SetSize(100, 100)
 
 	style := tcell.StyleDefault
-	DrawBox(screen, 0, 0, 10, 5, style)
+	Rect(screen, 0, 0, 10, 5, style)
 
 	// Check corners
-	corners := []struct {
-		x, y int
-		char rune
-	}{
-		{0, 0, '┌'}, // Top-left
-		{9, 0, '┐'}, // Top-right
-		{0, 4, '└'}, // Bottom-left
-		{9, 4, '┘'}, // Bottom-right
+	mainc, _, _, _ := screen.GetContent(0, 0)
+	if mainc != '┌' {
+		t.Errorf("Expected top-left corner, got %c", mainc)
 	}
 
-	for _, c := range corners {
-		mainc, _, _, _ := screen.GetContent(c.x, c.y)
-		if mainc != c.char {
-			t.Errorf("Expected corner character %c at (%d,%d), got %c", c.char, c.x, c.y, mainc)
-		}
+	mainc, _, _, _ = screen.GetContent(9, 0)
+	if mainc != '┐' {
+		t.Errorf("Expected top-right corner, got %c", mainc)
+	}
+
+	mainc, _, _, _ = screen.GetContent(0, 4)
+	if mainc != '└' {
+		t.Errorf("Expected bottom-left corner, got %c", mainc)
+	}
+
+	mainc, _, _, _ = screen.GetContent(9, 4)
+	if mainc != '┘' {
+		t.Errorf("Expected bottom-right corner, got %c", mainc)
 	}
 }
 
-func TestDrawText(t *testing.T) {
+func TestText(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -88,18 +93,19 @@ func TestDrawText(t *testing.T) {
 
 	style := tcell.StyleDefault
 	text := "Hello"
-	DrawText(screen, 0, 0, style, text)
+	Text(screen, 0, 0, style, text)
 
 	// Check each character
-	for i, char := range text {
+	for i, expected := range text {
 		mainc, _, _, _ := screen.GetContent(i, 0)
-		if mainc != char {
-			t.Errorf("Expected character %c at position %d, got %c", char, i, mainc)
+		if mainc != expected {
+			t.Errorf("Expected %c at position %d, got %c", expected, i, mainc)
 		}
 	}
 }
 
-func TestDrawTextCentered(t *testing.T) {
+func TestTextCentered(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -109,21 +115,20 @@ func TestDrawTextCentered(t *testing.T) {
 	style := tcell.StyleDefault
 	text := "Center"
 	width := 10
-	DrawTextCentered(screen, 0, 0, width, style, text)
-
-	// Calculate expected start position
-	startX := (width - len(text)) / 2
+	TextCentered(screen, 0, 0, width, style, text)
 
 	// Check each character
-	for i, char := range text {
+	startX := (width - len(text)) / 2
+	for i, expected := range text {
 		mainc, _, _, _ := screen.GetContent(startX+i, 0)
-		if mainc != char {
-			t.Errorf("Expected character %c at position %d, got %c", char, startX+i, mainc)
+		if mainc != expected {
+			t.Errorf("Expected %c at position %d, got %c", expected, i, mainc)
 		}
 	}
 }
 
-func TestDrawTextRight(t *testing.T) {
+func TestTextRight(t *testing.T) {
+	t.Parallel()
 	screen := tcell.NewSimulationScreen("")
 	if err := screen.Init(); err != nil {
 		t.Fatal(err)
@@ -133,16 +138,14 @@ func TestDrawTextRight(t *testing.T) {
 	style := tcell.StyleDefault
 	text := "Right"
 	width := 10
-	DrawTextRight(screen, 0, 0, width, style, text)
-
-	// Calculate expected start position
-	startX := width - len(text)
+	TextRight(screen, 0, 0, width, style, text)
 
 	// Check each character
-	for i, char := range text {
+	startX := width - len(text)
+	for i, expected := range text {
 		mainc, _, _, _ := screen.GetContent(startX+i, 0)
-		if mainc != char {
-			t.Errorf("Expected character %c at position %d, got %c", char, startX+i, mainc)
+		if mainc != expected {
+			t.Errorf("Expected %c at position %d, got %c", expected, i, mainc)
 		}
 	}
 }

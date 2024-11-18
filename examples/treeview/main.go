@@ -35,7 +35,7 @@ func main() {
 		mainBox.InnerHeight())
 
 	// Add some nodes
-	root := tree.AddRoot("Project")
+	root := tree.AddNode(nil, "Project")
 
 	// Add source code section
 	src := tree.AddNode(root, "src")
@@ -61,8 +61,8 @@ func main() {
 	tree.AddNode(configs, "config.dev.yaml")
 	tree.AddNode(configs, "config.prod.yaml")
 
-	// Expand root node
-	tree.ExpandNode(root)
+	// Expand all nodes
+	tree.ExpandAll()
 
 	// Main loop
 	quit := make(chan struct{})

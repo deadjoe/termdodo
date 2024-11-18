@@ -17,12 +17,16 @@ type Column struct {
 	Alignment Alignment // Left, Right, Center
 }
 
-// Alignment represents text alignment
+// Alignment represents text alignment in table cells
 type Alignment int
 
+// Text alignment constants
 const (
+	// AlignLeft aligns text to the left of the cell
 	AlignLeft Alignment = iota
+	// AlignCenter centers text in the cell
 	AlignCenter
+	// AlignRight aligns text to the right of the cell
 	AlignRight
 )
 
@@ -51,18 +55,15 @@ type Table struct {
 
 // NewTable creates a new table widget
 func NewTable(screen tcell.Screen, x, y, width, height int) *Table {
-	mainBg := theme.GetColor(theme.Current.MainBg)
-	selectedColor := theme.GetColor(theme.Current.Selected)
-
 	return &Table{
 		X:             x,
 		Y:             y,
 		Width:         width,
 		Height:        height,
 		Screen:        screen,
-		Style:         theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
-		HeaderStyle:   theme.GetStyle(theme.Current.Title, theme.Current.MainBg),
-		SelectedStyle: tcell.StyleDefault.Foreground(selectedColor).Background(mainBg),
+		Style:         theme.Current.GetStyle(),
+		HeaderStyle:   theme.Current.GetAccentStyle(),
+		SelectedStyle: theme.Current.GetStyle().Reverse(true),
 		ShowHeader:    true,
 		ShowBorder:    true,
 		Sortable:      true,
@@ -252,9 +253,9 @@ func (t *Table) drawHeader(y int) {
 		style := t.HeaderStyle
 		if t.Sortable && i == t.SortColumn {
 			if t.SortAscending {
-				title = title + string(0x25B2) // Unicode UP TRIANGLE
+				title = title + "\u25B2" // Unicode UP TRIANGLE
 			} else {
-				title = title + string(0x25BC) // Unicode DOWN TRIANGLE
+				title = title + "\u25BC" // Unicode DOWN TRIANGLE
 			}
 		}
 		for i, r := range title {

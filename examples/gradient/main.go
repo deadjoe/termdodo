@@ -1,28 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"math"
-	"os"
-	"time"
-
 	"github.com/deadjoe/termdodo/draw"
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/deadjoe/termdodo/widgets"
 	"github.com/gdamore/tcell/v2"
+	"math"
+	"time"
 )
-
-// initScreen initializes and returns a new tcell screen
-func initScreen() tcell.Screen {
-	screen, err := tcell.NewScreen()
-	if err != nil {
-		panic(err)
-	}
-	if err := screen.Init(); err != nil {
-		panic(err)
-	}
-	return screen
-}
 
 // createMainBox creates and returns the main box widget
 func createMainBox(screen tcell.Screen) *draw.Box {
@@ -33,7 +18,7 @@ func createMainBox(screen tcell.Screen) *draw.Box {
 	return mainBox
 }
 
-// createMeter creates and returns a new meter widget with the specified configuration
+// createMeter creates a new meter with the specified gradient colors
 func createMeter(screen tcell.Screen, mainBox *draw.Box, index int, startColor, endColor tcell.Color) *widgets.Meter {
 	meter := widgets.NewMeter(screen,
 		mainBox.InnerX(),
@@ -46,15 +31,6 @@ func createMeter(screen tcell.Screen, mainBox *draw.Box, index int, startColor, 
 	meter.SetGradient(startColor, endColor)
 
 	return meter
-}
-
-// handleKeyEvent handles keyboard events
-func handleKeyEvent(ev *tcell.EventKey) bool {
-	switch ev.Key() {
-	case tcell.KeyEscape, tcell.KeyCtrlC:
-		return true
-	}
-	return false
 }
 
 // updateMeters updates the meter values with a sine wave animation
@@ -80,7 +56,13 @@ func drawUI(screen tcell.Screen, mainBox *draw.Box, meters []*widgets.Meter) {
 
 func main() {
 	// Initialize screen
-	screen := initScreen()
+	screen, err := tcell.NewScreen()
+	if err != nil {
+		panic(err)
+	}
+	if err := screen.Init(); err != nil {
+		panic(err)
+	}
 	defer screen.Fini()
 
 	// Load default theme
@@ -101,31 +83,28 @@ func main() {
 	ticker := time.NewTicker(50 * time.Millisecond)
 	defer ticker.Stop()
 
-	for {
-		select {
-		case <-ticker.C:
-			// Handle events
-			for {
-				ev := screen.PollEvent()
-				switch ev := ev.(type) {
-				case *tcell.EventKey:
-					if handleKeyEvent(ev) {
-						return
-					}
-				case *tcell.EventResize:
-					screen.Sync()
-				case nil:
-					break
-				}
-				break
-			}
-
+	// Run the application
+	go func() {
+		for range ticker.C {
 			// Update meters
 			updateMeters(meters, t)
 			t += 0.1
 
 			// Draw UI
 			drawUI(screen, mainBox, meters)
+		}
+	}()
+
+	// Wait for quit event
+	for {
+		ev := screen.PollEvent()
+		switch ev := ev.(type) {
+		case *tcell.EventKey:
+			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+				return
+			}
+		case *tcell.EventResize:
+			screen.Sync()
 		}
 	}
 }

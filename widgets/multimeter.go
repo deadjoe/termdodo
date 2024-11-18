@@ -14,6 +14,7 @@ type MeterItem struct {
 	MaxValue       float64
 	Style          tcell.Style
 	GradientColors []tcell.Color
+	Height         int
 }
 
 // MultiMeter represents a multi meter widget
@@ -37,8 +38,11 @@ type MultiMeter struct {
 // Orientation represents the orientation of the multi meter
 type Orientation int
 
+// Meter orientations
 const (
+	// Horizontal orientation for the multi meter
 	Horizontal Orientation = iota
+	// Vertical orientation for the multi meter
 	Vertical
 )
 
@@ -50,13 +54,11 @@ func NewMultiMeter(screen tcell.Screen, x, y, width, height int) *MultiMeter {
 		Width:       width,
 		Height:      height,
 		Screen:      screen,
-		Style:       theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
-		LabelStyle:  theme.GetStyle(theme.Current.Title, theme.Current.MainBg),
-		ShowLabels:  true,
-		ShowValues:  true,
-		ShowBorder:  true,
-		Orientation: Vertical,
-		LabelWidth:  20,
+		Style:       theme.GetStyle(theme.ColorToHex(theme.Current.MainFg), theme.ColorToHex(theme.Current.MainBg)),
+		LabelStyle:  theme.GetStyle(theme.ColorToHex(theme.Current.MainFg), theme.ColorToHex(theme.Current.MainBg)),
+		Items:       make([]MeterItem, 0),
+		Orientation: Horizontal,
+		LabelWidth:  10,
 		MeterHeight: 1,
 		Spacing:     1,
 	}
@@ -67,8 +69,11 @@ func (m *MultiMeter) SetItems(items []MeterItem) {
 	m.Items = items
 }
 
-// AddItem adds a meter item
+// AddItem adds a meter item to the multi meter
 func (m *MultiMeter) AddItem(item MeterItem) {
+	if item.Label == "" || item.MaxValue <= 0 {
+		return
+	}
 	m.Items = append(m.Items, item)
 }
 
@@ -104,25 +109,7 @@ func (m *MultiMeter) Draw() {
 
 // drawBorder draws the widget border
 func (m *MultiMeter) drawBorder() {
-	style := m.Style
-
-	// Draw corners
-	m.Screen.SetContent(m.X, m.Y, '┌', nil, style)
-	m.Screen.SetContent(m.X+m.Width-1, m.Y, '┐', nil, style)
-	m.Screen.SetContent(m.X, m.Y+m.Height-1, '└', nil, style)
-	m.Screen.SetContent(m.X+m.Width-1, m.Y+m.Height-1, '┘', nil, style)
-
-	// Draw horizontal lines
-	for x := m.X + 1; x < m.X+m.Width-1; x++ {
-		m.Screen.SetContent(x, m.Y, '─', nil, style)
-		m.Screen.SetContent(x, m.Y+m.Height-1, '─', nil, style)
-	}
-
-	// Draw vertical lines
-	for y := m.Y + 1; y < m.Y+m.Height-1; y++ {
-		m.Screen.SetContent(m.X, y, '│', nil, style)
-		m.Screen.SetContent(m.X+m.Width-1, y, '│', nil, style)
-	}
+	DrawBorder(m.Screen, m.X, m.Y, m.Width, m.Height, m.Style)
 }
 
 // drawLabel draws a label for a meter item
@@ -171,12 +158,12 @@ func (m *MultiMeter) drawMeterBar(x, y, width int, item MeterItem) {
 
 // drawValue draws a value for a meter item
 func (m *MultiMeter) drawValue(x, y int, item MeterItem) {
-	valueStr := formatValue(item.Value)
+	text := fmt.Sprintf("%.1f%%", item.Value)
 	style := m.Style
 	if item.Style != (tcell.Style{}) {
 		style = item.Style
 	}
-	for i, r := range valueStr {
+	for i, r := range text {
 		m.Screen.SetContent(x+i, y, r, nil, style)
 	}
 }
@@ -264,22 +251,6 @@ func (m *MultiMeter) drawHorizontal(startX, startY int) {
 	}
 }
 
-// formatValue formats a float value as a string
-func formatValue(value float64) string {
-	if value >= 100 {
-		return fmt.Sprintf("%.0f%%", value)
-	}
-	return fmt.Sprintf("%.1f%%", value)
-}
-
-// truncateString truncates a string to the specified width
-func truncateString(s string, width int) string {
-	if len(s) <= width {
-		return s
-	}
-	return s[:width-3] + "..."
-}
-
 // SetShowLabels sets whether to show labels
 func (m *MultiMeter) SetShowLabels(show bool) {
 	m.ShowLabels = show
@@ -302,16 +273,28 @@ func (m *MultiMeter) SetOrientation(orientation Orientation) {
 
 // SetLabelWidth sets the width of labels
 func (m *MultiMeter) SetLabelWidth(width int) {
+	if width < 0 {
+		width = 0
+	}
 	m.LabelWidth = width
 }
 
-// SetMeterHeight sets the height of meters
+// SetMeterHeight sets the height of each meter
 func (m *MultiMeter) SetMeterHeight(height int) {
+	if height <= 0 {
+		height = 1
+	}
 	m.MeterHeight = height
+	for i := range m.Items {
+		m.Items[i].Height = height
+	}
 }
 
 // SetSpacing sets the spacing between meters
 func (m *MultiMeter) SetSpacing(spacing int) {
+	if spacing < 0 {
+		spacing = 0
+	}
 	m.Spacing = spacing
 }
 
@@ -333,4 +316,21 @@ func (m *MultiMeter) SetStyle(style tcell.Style) {
 // SetLabelStyle sets the style for labels
 func (m *MultiMeter) SetLabelStyle(style tcell.Style) {
 	m.LabelStyle = style
+}
+
+// UpdateMeter updates the value of a meter with the given label
+func (m *MultiMeter) UpdateMeter(label string, value float64) {
+	if value < 0 {
+		value = 0
+	}
+	if value >= 100 {
+		value = 100
+	}
+
+	for i := range m.Items {
+		if m.Items[i].Label == label {
+			m.Items[i].Value = value
+			return
+		}
+	}
 }
