@@ -11,23 +11,28 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4  # 更新到 v4
+        with:
+          fetch-depth: 0  # 从 codecov 建议的配置中采用
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21'
-        cache: true
+      - name: Set up Go
+        uses: actions/setup-go@v5  # 更新到 v5
+        with:
+          go-version: '1.21'
+          cache: true  # 保留你原有的缓存配置
 
-    - name: Install dependencies
-      run: go mod download
+      - name: Install dependencies
+        run: go mod download
 
-    - name: Run tests
-      run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      - name: Run tests
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...  # 保留你原有的完整测试命令
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.txt
-        flags: unittests
-        name: codecov-umbrella
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4  # 更新到 v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}  # 添加 token
+          file: ./coverage.txt
+          flags: unittests
+          name: codecov-umbrella
+          fail-ci-if-error: true  # 添加错误处理

@@ -186,21 +186,29 @@ func (t *TreeView) SelectNext() bool {
 		return true
 	}
 
+	// If current node is a leaf node (no children), return false
+	if len(t.Selected.Children) == 0 {
+		return false
+	}
+
 	// Try to find next sibling or ancestor's sibling
 	current := t.Selected
 	for current != nil {
 		parent := current.Parent
 		if parent == nil {
+			// We've reached the root and found no next node
 			return false
 		}
 
 		siblings := parent.Children
 		for i, sibling := range siblings {
 			if sibling == current && i < len(siblings)-1 {
+				// Found a next sibling
 				t.Selected = siblings[i+1]
 				return true
 			}
 		}
+		// No next sibling found, move up to parent and try again
 		current = parent
 	}
 
@@ -232,7 +240,7 @@ func (t *TreeView) SelectPrevious() bool {
 	for i, sibling := range parent.Children {
 		if sibling == t.Selected {
 			if i > 0 {
-				// Select the previous sibling's deepest visible node
+				// Select the last visible node in the previous sibling's subtree
 				prev := parent.Children[i-1]
 				for prev.Expanded && len(prev.Children) > 0 {
 					prev = prev.Children[len(prev.Children)-1]
