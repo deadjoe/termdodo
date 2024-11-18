@@ -65,10 +65,7 @@ func NewTable(screen tcell.Screen, x, y, width, height int) *Table {
 		ShowHeader:    true,
 		ShowBorder:    true,
 		Sortable:      true,
-		SortColumn:    -1,
-		SelectedRow:   0,
-		ScrollOffset:  0,
-		VisibleRows:   height - 2, // Account for header and border
+		HighlightRow:  true,
 	}
 }
 
