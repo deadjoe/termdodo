@@ -32,6 +32,26 @@ type TreeView struct {
 	Indent    int
 }
 
+// TreeViewStyle represents the style configuration for the tree view
+type TreeViewStyle struct {
+	NodeStyle      tcell.Style // Style for normal nodes
+	SelectedStyle  tcell.Style // Style for selected node
+	LineStyle      tcell.Style // Style for tree lines
+	ExpandedIcon   rune        // Icon for expanded nodes
+	CollapsedIcon  rune        // Icon for collapsed nodes
+}
+
+// DefaultTreeViewStyle returns the default style configuration
+func DefaultTreeViewStyle() TreeViewStyle {
+	return TreeViewStyle{
+		NodeStyle:     theme.GetStyle(theme.ColorToHex(theme.Current.MainFg), theme.ColorToHex(theme.Current.MainBg)),
+		SelectedStyle: theme.GetStyle(theme.ColorToHex(theme.Current.Selected), theme.ColorToHex(theme.Current.HighlightBg)),
+		LineStyle:     theme.GetStyle(theme.ColorToHex(theme.Current.MainFg), theme.ColorToHex(theme.Current.MainBg)),
+		ExpandedIcon:  '-',
+		CollapsedIcon: '+',
+	}
+}
+
 // NewTreeView creates a new tree view widget
 func NewTreeView(screen tcell.Screen, x, y, width, height int) *TreeView {
 	return &TreeView{
@@ -61,7 +81,7 @@ func (t *TreeView) Draw() {
 	}
 
 	t.VisibleNodes = 0
-	t.drawNode(t.Root, t.X, t.Y, false)
+	t.drawNode(t.Root, t.X, t.Y-t.ScrollOffset, false)
 }
 
 // getNodeStyle returns the appropriate style for a node
@@ -169,15 +189,24 @@ func (t *TreeView) HandleKeyEvent(event *tcell.EventKey) bool {
 	return false
 }
 
+// isLeafNode returns true if the node is a leaf node
+func (n *TreeNode) isLeafNode() bool {
+	return len(n.Children) == 0
+}
+
 // SelectNext selects the next visible node in the tree
 func (t *TreeView) SelectNext() bool {
-	if t.Root == nil {
+	if t.Root == nil || t.Selected == nil {
+		if t.Root != nil {
+			t.Selected = t.Root
+			return true
+		}
 		return false
 	}
 
-	if t.Selected == nil {
-		t.Selected = t.Root
-		return true
+	// If we're at a leaf node, we can't go further down
+	if t.Selected.isLeafNode() {
+		return false
 	}
 
 	// If current node is expanded and has children, select first child
@@ -186,44 +215,41 @@ func (t *TreeView) SelectNext() bool {
 		return true
 	}
 
-	// If current node is a leaf node (no children), return false
-	if len(t.Selected.Children) == 0 {
-		return false
-	}
-
 	// Try to find next sibling or ancestor's sibling
 	current := t.Selected
 	for current != nil {
 		parent := current.Parent
 		if parent == nil {
-			// We've reached the root and found no next node
-			return false
+			return false // At root with no children or not expanded
 		}
 
-		siblings := parent.Children
-		for i, sibling := range siblings {
-			if sibling == current && i < len(siblings)-1 {
-				// Found a next sibling
-				t.Selected = siblings[i+1]
-				return true
+		// Find current node's index among siblings
+		for i, sibling := range parent.Children {
+			if sibling == current {
+				// If there's a next sibling, select it
+				if i < len(parent.Children)-1 {
+					t.Selected = parent.Children[i+1]
+					return true
+				}
+				// No more siblings, move up to parent and continue
+				current = parent
+				break
 			}
 		}
-		// No next sibling found, move up to parent and try again
-		current = parent
 	}
 
+	// No more nodes to select, keep current selection
 	return false
 }
 
 // SelectPrevious selects the previous visible node
 func (t *TreeView) SelectPrevious() bool {
-	if t.Root == nil {
+	if t.Root == nil || t.Selected == nil {
+		if t.Root != nil {
+			t.Selected = t.Root
+			return true
+		}
 		return false
-	}
-
-	if t.Selected == nil {
-		t.Selected = t.Root
-		return true
 	}
 
 	// If at root, cannot go up further
@@ -240,7 +266,7 @@ func (t *TreeView) SelectPrevious() bool {
 	for i, sibling := range parent.Children {
 		if sibling == t.Selected {
 			if i > 0 {
-				// Select the last visible node in the previous sibling's subtree
+				// Select the deepest visible node in the previous sibling's subtree
 				prev := parent.Children[i-1]
 				for prev.Expanded && len(prev.Children) > 0 {
 					prev = prev.Children[len(prev.Children)-1]
@@ -308,19 +334,30 @@ func (t *TreeView) collapseNode(node *TreeNode) {
 }
 
 // AddNode adds a child node to the specified parent
+// If parent is nil, the node will be set as the root node
 func (t *TreeView) AddNode(parent *TreeNode, text string) *TreeNode {
-	if parent == nil {
-		return nil
-	}
 	node := &TreeNode{
 		Text:   text,
-		Parent: parent,
 		Style:  t.Style,
 	}
-	parent.Children = append(parent.Children, node)
+
+	if parent == nil {
+		// Set as root node
+		if t.Root != nil {
+			// If root exists, return nil to prevent multiple roots
+			return nil
+		}
+		t.Root = node
+	} else {
+		node.Parent = parent
+		parent.Children = append(parent.Children, node)
+	}
+
+	// Select the new node if no node is currently selected
 	if t.Selected == nil {
 		t.Selected = node
 	}
+
 	return node
 }
 
@@ -394,6 +431,142 @@ func (t *TreeView) CollapseSelected() bool {
 func (t *TreeView) ToggleSelected() bool {
 	if t.Selected != nil {
 		t.Selected.Expanded = !t.Selected.Expanded
+		return true
+	}
+	return false
+}
+
+// EnsureVisible ensures the selected node is visible in the view
+func (t *TreeView) EnsureVisible() {
+	if t.Selected == nil {
+		return
+	}
+
+	// First ensure all parent nodes are expanded
+	current := t.Selected.Parent
+	for current != nil {
+		current.Expanded = true
+		current = current.Parent
+	}
+
+	// Calculate node position
+	y := 0
+	var calcPosition func(*TreeNode) int
+	calcPosition = func(node *TreeNode) int {
+		if node == t.Selected {
+			return y
+		}
+		if node == nil {
+			return -1
+		}
+		y++
+		if node.Expanded {
+			for _, child := range node.Children {
+				if result := calcPosition(child); result >= 0 {
+					return result
+				}
+			}
+		}
+		return -1
+	}
+
+	pos := calcPosition(t.Root)
+	if pos < 0 {
+		return
+	}
+
+	// Adjust scroll offset if needed
+	if pos < t.ScrollOffset {
+		t.ScrollOffset = pos
+	} else if pos >= t.ScrollOffset+t.Height {
+		t.ScrollOffset = pos - t.Height + 1
+	}
+
+	if t.ScrollOffset < 0 {
+		t.ScrollOffset = 0
+	}
+}
+
+// ScrollTo scrolls the view to the specified offset
+func (t *TreeView) ScrollTo(offset int) {
+	if offset < 0 {
+		offset = 0
+	}
+	t.ScrollOffset = offset
+}
+
+// ScrollBy scrolls the view by the specified amount
+func (t *TreeView) ScrollBy(delta int) {
+	t.ScrollTo(t.ScrollOffset + delta)
+}
+
+// SetStyle sets the style configuration for the tree view
+func (t *TreeView) SetStyle(style TreeViewStyle) {
+	t.Style = style.NodeStyle
+	t.SelectedStyle = style.SelectedStyle
+	// Update all existing nodes with the new style
+	var updateStyles func(*TreeNode)
+	updateStyles = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		if node.Style == (tcell.Style{}) {
+			node.Style = style.NodeStyle
+		}
+		for _, child := range node.Children {
+			updateStyles(child)
+		}
+	}
+	updateStyles(t.Root)
+}
+
+// SetNodeStyle sets the style for a specific node
+func (t *TreeView) SetNodeStyle(node *TreeNode, style tcell.Style) {
+	if node != nil {
+		node.Style = style
+	}
+}
+
+// FindNode searches for a node with the given text
+func (t *TreeView) FindNode(text string) *TreeNode {
+	if t.Root == nil {
+		return nil
+	}
+
+	var search func(*TreeNode) *TreeNode
+	search = func(node *TreeNode) *TreeNode {
+		if node == nil {
+			return nil
+		}
+
+		if node.Text == text {
+			return node
+		}
+
+		for _, child := range node.Children {
+			if found := search(child); found != nil {
+				return found
+			}
+		}
+
+		return nil
+	}
+
+	return search(t.Root)
+}
+
+// FindAndSelect searches for a node with the given text and selects it if found
+func (t *TreeView) FindAndSelect(text string) bool {
+	node := t.FindNode(text)
+	if node != nil {
+		// Expand all parent nodes to make the found node visible
+		current := node.Parent
+		for current != nil {
+			current.Expanded = true
+			current = current.Parent
+		}
+		t.Selected = node
+		t.EnsureVisible()
 		return true
 	}
 	return false
