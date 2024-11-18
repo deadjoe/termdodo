@@ -1,8 +1,8 @@
 package widgets
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/theme"
+	"github.com/gdamore/tcell/v2"
 	"sort"
 	"strings"
 )
@@ -38,14 +38,14 @@ type Table struct {
 	Rows        [][]string
 	SelectedRow int
 
-	ShowHeader     bool
-	ShowBorder     bool
-	Sortable       bool
-	SortColumn     int
-	SortAscending  bool
-	HighlightRow   bool
-	ScrollOffset   int
-	VisibleRows    int
+	ShowHeader    bool
+	ShowBorder    bool
+	Sortable      bool
+	SortColumn    int
+	SortAscending bool
+	HighlightRow  bool
+	ScrollOffset  int
+	VisibleRows   int
 }
 
 // NewTable creates a new table widget

@@ -1,14 +1,14 @@
 package widgets
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/theme"
+	"github.com/gdamore/tcell/v2"
 )
 
 // InfoField represents a field in the info panel
 type InfoField struct {
-	Label     string
-	Value     string
+	Label      string
+	Value      string
 	LabelStyle tcell.Style
 	ValueStyle tcell.Style
 }
@@ -21,9 +21,9 @@ type InfoPanel struct {
 	Style         tcell.Style
 	TitleStyle    tcell.Style
 
-	Title       string
-	Fields      []InfoField
-	ShowBorder  bool
+	Title        string
+	Fields       []InfoField
+	ShowBorder   bool
 	ScrollOffset int
 	LabelWidth   int
 }

@@ -65,10 +65,10 @@ func TestDrawBox(t *testing.T) {
 		x, y int
 		char rune
 	}{
-		{0, 0, '┌'},   // Top-left
-		{9, 0, '┐'},   // Top-right
-		{0, 4, '└'},   // Bottom-left
-		{9, 4, '┘'},   // Bottom-right
+		{0, 0, '┌'}, // Top-left
+		{9, 0, '┐'}, // Top-right
+		{0, 4, '└'}, // Bottom-left
+		{9, 4, '┘'}, // Bottom-right
 	}
 
 	for _, c := range corners {

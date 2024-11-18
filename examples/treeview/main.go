@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/draw"
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/deadjoe/termdodo/widgets"
+	"github.com/gdamore/tcell/v2"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 
 	// Add some nodes
 	root := tree.AddRoot("Project")
-	
+
 	// Add source code section
 	src := tree.AddNode(root, "src")
 	tree.AddNode(src, "main.go")

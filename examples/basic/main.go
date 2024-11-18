@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/draw"
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/deadjoe/termdodo/widgets"
+	"github.com/gdamore/tcell/v2"
 )
 
 func main() {
@@ -47,7 +47,7 @@ func main() {
 
 	// Create widgets
 	width, height := screen.Size()
-	
+
 	// Create boxes for layout
 	graphBox := draw.NewBox(screen, 1, 1, width/2-2, height/2-2)
 	graphBox.SetTitle("Graph Demo")
@@ -58,16 +58,16 @@ func main() {
 	meterBox.SetRound(true)
 
 	// Create graph widget
-	graph := widgets.NewGraph(screen, graphBox.InnerX(), graphBox.InnerY(), 
+	graph := widgets.NewGraph(screen, graphBox.InnerX(), graphBox.InnerY(),
 		graphBox.InnerWidth(), graphBox.InnerHeight()-1)
 	graph.SetGraphStyle(widgets.GraphStyleBlock)
 
 	// Create meters
 	meters := make([]*widgets.Meter, 3)
 	for i := range meters {
-		meters[i] = widgets.NewMeter(screen, 
-			meterBox.InnerX(), 
-			meterBox.InnerY()+i*2, 
+		meters[i] = widgets.NewMeter(screen,
+			meterBox.InnerX(),
+			meterBox.InnerY()+i*2,
 			meterBox.InnerWidth()-10)
 	}
 

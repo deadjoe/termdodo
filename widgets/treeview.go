@@ -1,8 +1,8 @@
 package widgets
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/theme"
+	"github.com/gdamore/tcell/v2"
 )
 
 // TreeNode represents a node in the tree
@@ -23,8 +23,8 @@ type TreeView struct {
 	Style         tcell.Style
 	SelectedStyle tcell.Style
 
-	Root        *TreeNode
-	Selected    *TreeNode
+	Root         *TreeNode
+	Selected     *TreeNode
 	ScrollOffset int
 	VisibleNodes int
 
@@ -95,7 +95,7 @@ func (t *TreeView) drawNode(node *TreeNode, x, y, level int) {
 				}
 				t.Screen.SetContent(lineX+i, actualY, char, nil, t.Style)
 			}
-			
+
 			// Draw connection to parent
 			if node.Parent != nil {
 				isLast := node == node.Parent.Children[len(node.Parent.Children)-1]

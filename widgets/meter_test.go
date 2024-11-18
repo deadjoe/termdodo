@@ -29,7 +29,7 @@ func TestMeterSetValue(t *testing.T) {
 	}
 
 	meter := NewMeter(screen, 0, 0, 50)
-	
+
 	testCases := []struct {
 		value    float64
 		expected float64
@@ -37,8 +37,8 @@ func TestMeterSetValue(t *testing.T) {
 		{0.5, 0.5},
 		{1.0, 1.0},
 		{0.0, 0.0},
-		{-0.1, 0.0},  // Should clamp to 0
-		{1.1, 1.0},   // Should clamp to 1
+		{-0.1, 0.0}, // Should clamp to 0
+		{1.1, 1.0},  // Should clamp to 1
 	}
 
 	for _, tc := range testCases {
@@ -56,7 +56,7 @@ func TestMeterSetShowPercentage(t *testing.T) {
 	}
 
 	meter := NewMeter(screen, 0, 0, 50)
-	
+
 	meter.SetShowPercentage(true)
 	if !meter.ShowPercentage {
 		t.Error("Expected ShowPercentage to be true")
@@ -75,7 +75,7 @@ func TestMeterSetLabel(t *testing.T) {
 	}
 
 	meter := NewMeter(screen, 0, 0, 50)
-	
+
 	testLabel := "CPU Usage"
 	meter.SetLabel(testLabel)
 	if meter.Label != testLabel {

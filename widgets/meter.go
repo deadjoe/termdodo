@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/symbols"
 	"github.com/deadjoe/termdodo/theme"
+	"github.com/gdamore/tcell/v2"
 )
 
 // Meter represents a percentage meter widget
@@ -17,13 +17,13 @@ type Meter struct {
 	Screen  tcell.Screen
 	Value   float64
 	ShowPct bool
-	
+
 	// New fields for block style and gradient
-	BlockStyle    bool
-	BlockSpacing  int
-	StartColor    tcell.Color
-	EndColor      tcell.Color
-	UseGradient   bool
+	BlockStyle   bool
+	BlockSpacing int
+	StartColor   tcell.Color
+	EndColor     tcell.Color
+	UseGradient  bool
 }
 
 // NewMeter creates a new meter widget
@@ -90,12 +90,12 @@ func (m *Meter) Draw() {
 				position := float64(i) / float64(totalWidth)
 				r1, g1, b1 := m.StartColor.RGB()
 				r2, g2, b2 := m.EndColor.RGB()
-				
+
 				// Linear interpolation between colors
 				r := uint8(float64(r1) + position*float64(r2-r1))
 				g := uint8(float64(g1) + position*float64(g2-g1))
 				b := uint8(float64(b1) + position*float64(b2-b1))
-				
+
 				color := tcell.NewRGBColor(int32(r), int32(g), int32(b))
 				style = tcell.StyleDefault.Foreground(color)
 			} else {
@@ -107,8 +107,8 @@ func (m *Meter) Draw() {
 
 		if m.BlockStyle {
 			// 使用密集点字符组成紧凑的正方形
-			m.drawTextStyled(pos, m.Y, "⠿", style)      // 使用布莱叶密集点字符
-			pos += 1 + m.BlockSpacing  // 每个方块占一个字符宽度
+			m.drawTextStyled(pos, m.Y, "⠿", style) // 使用布莱叶密集点字符
+			pos += 1 + m.BlockSpacing              // 每个方块占一个字符宽度
 		} else {
 			m.drawTextStyled(pos, m.Y, symbols.Meter, style)
 			pos++

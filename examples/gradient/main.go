@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/draw"
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/deadjoe/termdodo/widgets"
+	"github.com/gdamore/tcell/v2"
 )
 
 func main() {
@@ -39,27 +39,27 @@ func main() {
 			mainBox.InnerX(),
 			mainBox.InnerY()+i*2, // 使用正常的垂直间距
 			mainBox.InnerWidth()-10)
-		
+
 		// Configure block style
 		meters[i].SetBlockStyle(true)
 		meters[i].SetBlockSpacing(1)
 		meters[i].SetShowPercentage(true)
-		
+
 		// Set different gradients for each meter
 		switch i {
 		case 0:
 			meters[i].SetGradient(
-				tcell.NewRGBColor(0, 100, 255),  // Light blue
-				tcell.NewRGBColor(0, 200, 255),  // Dark blue
+				tcell.NewRGBColor(0, 100, 255), // Light blue
+				tcell.NewRGBColor(0, 200, 255), // Dark blue
 			)
 		case 1:
 			meters[i].SetGradient(
-				tcell.NewRGBColor(255, 100, 0),  // Light orange
-				tcell.NewRGBColor(255, 200, 0),  // Dark orange
+				tcell.NewRGBColor(255, 100, 0), // Light orange
+				tcell.NewRGBColor(255, 200, 0), // Dark orange
 			)
 		case 2:
 			meters[i].SetGradient(
-				tcell.NewRGBColor(0, 180, 0),    // Light green
+				tcell.NewRGBColor(0, 180, 0),     // Light green
 				tcell.NewRGBColor(150, 255, 150), // Dark green
 			)
 		}

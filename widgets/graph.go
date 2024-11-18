@@ -1,9 +1,9 @@
 package widgets
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/symbols"
 	"github.com/deadjoe/termdodo/theme"
+	"github.com/gdamore/tcell/v2"
 )
 
 // GraphStyle represents the style of graph to be drawn
@@ -31,16 +31,16 @@ type Graph struct {
 // NewGraph creates a new graph widget
 func NewGraph(screen tcell.Screen, x, y, width, height int) *Graph {
 	return &Graph{
-		X:         x,
-		Y:         y,
-		Width:     width,
-		Height:    height,
-		Style:     theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
-		Screen:    screen,
-		Data:      make([]float64, 0),
-		MaxValue:  100,
-		MinValue:  0,
-		Inverted:  false,
+		X:        x,
+		Y:        y,
+		Width:    width,
+		Height:   height,
+		Style:    theme.GetStyle(theme.Current.MainFg, theme.Current.MainBg),
+		Screen:   screen,
+		Data:     make([]float64, 0),
+		MaxValue: 100,
+		MinValue: 0,
+		Inverted: false,
 	}
 }
 
@@ -96,7 +96,7 @@ func (g *Graph) Draw() {
 			} else {
 				pattern = patterns[0] // Empty block
 			}
-			
+
 			g.drawTextStyled(x, g.Y+y, pattern, style)
 		}
 	}

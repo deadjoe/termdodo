@@ -2,31 +2,31 @@ package symbols
 
 // Box drawing symbols
 const (
-	BoxDrawingTopLeft        = "┌"
-	BoxDrawingTopRight       = "┐"
-	BoxDrawingBottomLeft     = "└"
-	BoxDrawingBottomRight    = "┘"
-	BoxDrawingHorizontal     = "─"
-	BoxDrawingVertical       = "│"
-	BoxDrawingRoundTopLeft   = "╭"
-	BoxDrawingRoundTopRight  = "╮"
-	BoxDrawingRoundBottomLeft = "╰"
+	BoxDrawingTopLeft          = "┌"
+	BoxDrawingTopRight         = "┐"
+	BoxDrawingBottomLeft       = "└"
+	BoxDrawingBottomRight      = "┘"
+	BoxDrawingHorizontal       = "─"
+	BoxDrawingVertical         = "│"
+	BoxDrawingRoundTopLeft     = "╭"
+	BoxDrawingRoundTopRight    = "╮"
+	BoxDrawingRoundBottomLeft  = "╰"
 	BoxDrawingRoundBottomRight = "╯"
-	HLine         = "─"
-	VLine         = "│"
-	DottedVLine   = "╎"
-	LeftUp        = "┌"
-	RightUp       = "┐"
-	LeftDown      = "└"
-	RightDown     = "┘"
-	RoundLeftUp   = "╭"
-	RoundRightUp  = "╮"
-	RoundLeftDown = "╰"
-	RoundRightDown= "╯"
-	DivRight      = "┤"
-	DivLeft       = "├"
-	DivUp         = "┬"
-	DivDown       = "┴"
+	HLine                      = "─"
+	VLine                      = "│"
+	DottedVLine                = "╎"
+	LeftUp                     = "┌"
+	RightUp                    = "┐"
+	LeftDown                   = "└"
+	RightDown                  = "┘"
+	RoundLeftUp                = "╭"
+	RoundRightUp               = "╮"
+	RoundLeftDown              = "╰"
+	RoundRightDown             = "╯"
+	DivRight                   = "┤"
+	DivLeft                    = "├"
+	DivUp                      = "┬"
+	DivDown                    = "┴"
 )
 
 // Graph symbols
@@ -43,15 +43,15 @@ const (
 	BrailleFull  = '⣿'
 
 	// Block patterns for graph drawing
-	BlockStart = ' '      // Space
-	Block1     = '▁'     // Lower one eighth block
-	Block2     = '▂'     // Lower one quarter block
-	Block3     = '▃'     // Lower three eighths block
-	Block4     = '▄'     // Lower half block
-	Block5     = '▅'     // Lower five eighths block
-	Block6     = '▆'     // Lower three quarters block
-	Block7     = '▇'     // Lower seven eighths block
-	BlockFull  = '█'     // Full block
+	BlockStart = ' ' // Space
+	Block1     = '▁' // Lower one eighth block
+	Block2     = '▂' // Lower one quarter block
+	Block3     = '▃' // Lower three eighths block
+	Block4     = '▄' // Lower half block
+	Block5     = '▅' // Lower five eighths block
+	Block6     = '▆' // Lower three quarters block
+	Block7     = '▇' // Lower seven eighths block
+	BlockFull  = '█' // Full block
 
 	// TTY patterns for graph drawing
 	TTYStart = ' '
@@ -76,11 +76,11 @@ const (
 	ArrowDown  = "↓"
 	ArrowLeft  = "←"
 	ArrowRight = "→"
-	Up    = "↑"
-	Down  = "↓"
-	Left  = "←"
-	Right = "→"
-	Enter = "↵"
+	Up         = "↑"
+	Down       = "↓"
+	Left       = "←"
+	Right      = "→"
+	Enter      = "↵"
 )
 
 // BraillePatterns returns all braille patterns in order

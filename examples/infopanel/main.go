@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/draw"
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/deadjoe/termdodo/widgets"
+	"github.com/gdamore/tcell/v2"
 	"time"
 )
 
@@ -71,7 +71,7 @@ func main() {
 		case <-ticker.C:
 			// Update some dynamic info
 			panel.UpdateItem("Uptime", time.Now().Format("15:04:05"))
-			
+
 			// Draw everything
 			screen.Clear()
 			mainBox.Draw()

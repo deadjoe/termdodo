@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/draw"
 	"github.com/deadjoe/termdodo/theme"
 	"github.com/deadjoe/termdodo/widgets"
+	"github.com/gdamore/tcell/v2"
 )
 
 func main() {
@@ -34,7 +34,7 @@ func main() {
 
 	// Create status bar at the bottom
 	statusBar := widgets.NewStatusBar(screen, 0, height-1, width)
-	
+
 	// Add some status items
 	statusBar.AddItem("status", "Ready", tcell.StyleDefault)
 	statusBar.AddItem("time", "", tcell.StyleDefault)

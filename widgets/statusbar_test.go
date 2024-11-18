@@ -64,7 +64,7 @@ func TestStatusBarUpdateItem(t *testing.T) {
 	// Test updating existing item
 	newStyle := tcell.StyleDefault.Foreground(tcell.ColorRed)
 	bar.UpdateItem(0, "Disconnected", newStyle)
-	
+
 	if bar.Items[0].Text != "Disconnected" {
 		t.Errorf("Expected updated text to be 'Disconnected', got %q", bar.Items[0].Text)
 	}

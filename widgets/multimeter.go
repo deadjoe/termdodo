@@ -2,16 +2,16 @@ package widgets
 
 import (
 	"fmt"
-	"github.com/gdamore/tcell/v2"
 	"github.com/deadjoe/termdodo/theme"
+	"github.com/gdamore/tcell/v2"
 )
 
 // MeterItem represents a single meter in the multi meter widget
 type MeterItem struct {
-	Label     string
-	Value     float64
-	MaxValue  float64
-	Style     tcell.Style
+	Label          string
+	Value          float64
+	MaxValue       float64
+	Style          tcell.Style
 	GradientColors []tcell.Color
 }
 

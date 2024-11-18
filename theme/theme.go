@@ -19,20 +19,20 @@ type Color struct {
 
 // Theme represents a complete color theme
 type Theme struct {
-	Name         string            `json:"name"`
-	Description  string           `json:"description"`
-	Author       string           `json:"author"`
-	Background   string           `json:"background"`
-	Foreground   string           `json:"foreground"`
-	MainBg       string           `json:"main_bg"`
-	MainFg       string           `json:"main_fg"`
-	Title        string           `json:"title"`
-	Meter        []string         `json:"meter_bg"`
-	Graph        []string         `json:"graph"`
-	BorderColor  string           `json:"border"`
-	Selected     string           `json:"selected"`
-	HighlightBg  string           `json:"highlight_bg"`
-	HighlightFg  string           `json:"highlight_fg"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Author      string   `json:"author"`
+	Background  string   `json:"background"`
+	Foreground  string   `json:"foreground"`
+	MainBg      string   `json:"main_bg"`
+	MainFg      string   `json:"main_fg"`
+	Title       string   `json:"title"`
+	Meter       []string `json:"meter_bg"`
+	Graph       []string `json:"graph"`
+	BorderColor string   `json:"border"`
+	Selected    string   `json:"selected"`
+	HighlightBg string   `json:"highlight_bg"`
+	HighlightFg string   `json:"highlight_fg"`
 }
 
 var (
