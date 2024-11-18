@@ -1,0 +1,25 @@
+{
+    "name": "Default",
+    "description": "Default btop theme",
+    "author": "aristocratos",
+    "background": "#0a0e14",
+    "foreground": "#b3b1ad",
+    "main_bg": "#0a0e14",
+    "main_fg": "#b3b1ad",
+    "title": "#ff8f40",
+    "meter_bg": [
+        "#5ccc96",
+        "#95e6cb",
+        "#b4f9f8"
+    ],
+    "graph": [
+        "#26a269",
+        "#33d17a",
+        "#2ec27e",
+        "#5ccc96"
+    ],
+    "border": "#ffb454",
+    "selected": "#ffb454",
+    "highlight_bg": "#1c1f25",
+    "highlight_fg": "#ffffff"
+}
