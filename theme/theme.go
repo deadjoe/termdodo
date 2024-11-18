@@ -209,3 +209,23 @@ func GetGradientStyle(colors []string, position float64) tcell.Style {
 	// Use the color at the calculated segment
 	return GetStyle(colors[segment], "")
 }
+
+// NewTheme creates a new theme with default values
+func NewTheme() *Theme {
+	return &Theme{
+		Name:        "Default",
+		Author:      "Termdodo",
+		Description: "Default theme for Termdodo",
+		Background:  "#000000",
+		Foreground:  "#FFFFFF",
+		MainBg:      "#000000",
+		MainFg:      "#FFFFFF",
+		Title:       "#00FF00",
+		Meter:       []string{"#5ccc96", "#95e6cb", "#b4f9f8"},
+		Graph:       []string{"#26a269", "#33d17a", "#2ec27e", "#5ccc96"},
+		BorderColor: "#666666",
+		Selected:    "#0000FF",
+		HighlightBg: "#1c1f25",
+		HighlightFg: "#ffffff",
+	}
+}

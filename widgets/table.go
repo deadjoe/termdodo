@@ -255,7 +255,11 @@ func (t *Table) drawHeader(y int) {
 		title := t.alignText(col.Title, col.Width, col.Alignment)
 		style := t.HeaderStyle
 		if t.Sortable && i == t.SortColumn {
-			title += t.SortAscending ? " ▲" : " ▼"
+			if t.SortAscending {
+				title = title + string(0x25B2) // Unicode UP TRIANGLE
+			} else {
+				title = title + string(0x25BC) // Unicode DOWN TRIANGLE
+			}
 		}
 		for i, r := range title {
 			t.Screen.SetContent(x+i, y, r, nil, style)

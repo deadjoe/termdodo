@@ -2,8 +2,8 @@ package draw
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"termdodo/symbols"
-	"termdodo/theme"
+	"github.com/deadjoe/termdodo/symbols"
+	"github.com/deadjoe/termdodo/theme"
 )
 
 // Box represents a box widget with borders
