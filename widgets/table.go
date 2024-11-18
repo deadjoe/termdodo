@@ -342,6 +342,81 @@ func (t *Table) alignText(text string, width int, alignment Alignment) string {
 	}
 }
 
+// handleUpKey handles up arrow key event
+func (t *Table) handleUpKey() bool {
+	if t.SelectedRow > 0 {
+		t.SelectedRow--
+		// Scroll up if selected row is above visible area
+		if t.SelectedRow < t.ScrollOffset {
+			t.ScrollOffset = t.SelectedRow
+		}
+		return true
+	}
+	return false
+}
+
+// handleDownKey handles down arrow key event
+func (t *Table) handleDownKey() bool {
+	if t.SelectedRow < len(t.Rows)-1 {
+		t.SelectedRow++
+		// Scroll down if selected row is below visible area
+		visibleRows := t.Height - 2 // Account for header and border
+		if t.SelectedRow >= t.ScrollOffset+visibleRows {
+			t.ScrollOffset = t.SelectedRow - visibleRows + 1
+		}
+		return true
+	}
+	return false
+}
+
+// handlePageUpKey handles page up key event
+func (t *Table) handlePageUpKey() bool {
+	visibleRows := t.Height - 2 // Account for header and border
+	t.ScrollOffset -= visibleRows
+	if t.ScrollOffset < 0 {
+		t.ScrollOffset = 0
+	}
+	if t.SelectedRow > t.ScrollOffset+visibleRows-1 {
+		t.SelectedRow = t.ScrollOffset + visibleRows - 1
+	}
+	return true
+}
+
+// handlePageDownKey handles page down key event
+func (t *Table) handlePageDownKey() bool {
+	visibleRows := t.Height - 2 // Account for header and border
+	maxScroll := len(t.Rows) - visibleRows
+	if maxScroll < 0 {
+		maxScroll = 0
+	}
+	t.ScrollOffset += visibleRows
+	if t.ScrollOffset > maxScroll {
+		t.ScrollOffset = maxScroll
+	}
+	if t.SelectedRow < t.ScrollOffset {
+		t.SelectedRow = t.ScrollOffset
+	}
+	return true
+}
+
+// handleHomeKey handles home key event
+func (t *Table) handleHomeKey() bool {
+	t.SelectedRow = 0
+	t.ScrollOffset = 0
+	return true
+}
+
+// handleEndKey handles end key event
+func (t *Table) handleEndKey() bool {
+	t.SelectedRow = len(t.Rows) - 1
+	visibleRows := t.Height - 2
+	t.ScrollOffset = len(t.Rows) - visibleRows
+	if t.ScrollOffset < 0 {
+		t.ScrollOffset = 0
+	}
+	return true
+}
+
 // HandleEvent handles keyboard events
 func (t *Table) HandleEvent(ev *tcell.EventKey) bool {
 	if len(t.Rows) == 0 {
@@ -350,60 +425,17 @@ func (t *Table) HandleEvent(ev *tcell.EventKey) bool {
 
 	switch ev.Key() {
 	case tcell.KeyUp:
-		if t.SelectedRow > 0 {
-			t.SelectedRow--
-			// Scroll up if selected row is above visible area
-			if t.SelectedRow < t.ScrollOffset {
-				t.ScrollOffset = t.SelectedRow
-			}
-			return true
-		}
+		return t.handleUpKey()
 	case tcell.KeyDown:
-		if t.SelectedRow < len(t.Rows)-1 {
-			t.SelectedRow++
-			// Scroll down if selected row is below visible area
-			visibleRows := t.Height - 2 // Account for header and border
-			if t.SelectedRow >= t.ScrollOffset+visibleRows {
-				t.ScrollOffset = t.SelectedRow - visibleRows + 1
-			}
-			return true
-		}
+		return t.handleDownKey()
 	case tcell.KeyPgUp:
-		visibleRows := t.Height - 2 // Account for header and border
-		t.ScrollOffset -= visibleRows
-		if t.ScrollOffset < 0 {
-			t.ScrollOffset = 0
-		}
-		if t.SelectedRow > t.ScrollOffset+visibleRows-1 {
-			t.SelectedRow = t.ScrollOffset + visibleRows - 1
-		}
-		return true
+		return t.handlePageUpKey()
 	case tcell.KeyPgDn:
-		visibleRows := t.Height - 2 // Account for header and border
-		maxScroll := len(t.Rows) - visibleRows
-		if maxScroll < 0 {
-			maxScroll = 0
-		}
-		t.ScrollOffset += visibleRows
-		if t.ScrollOffset > maxScroll {
-			t.ScrollOffset = maxScroll
-		}
-		if t.SelectedRow < t.ScrollOffset {
-			t.SelectedRow = t.ScrollOffset
-		}
-		return true
+		return t.handlePageDownKey()
 	case tcell.KeyHome:
-		t.SelectedRow = 0
-		t.ScrollOffset = 0
-		return true
+		return t.handleHomeKey()
 	case tcell.KeyEnd:
-		t.SelectedRow = len(t.Rows) - 1
-		visibleRows := t.Height - 2
-		t.ScrollOffset = len(t.Rows) - visibleRows
-		if t.ScrollOffset < 0 {
-			t.ScrollOffset = 0
-		}
-		return true
+		return t.handleEndKey()
 	}
 
 	return false

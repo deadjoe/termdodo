@@ -67,6 +67,70 @@ func (t *TreeView) Draw() {
 	t.drawNode(t.Root, t.X, t.Y, 0)
 }
 
+// getNodeStyle returns the appropriate style for a node
+func (t *TreeView) getNodeStyle(node *TreeNode) tcell.Style {
+	if node == t.Selected {
+		return t.SelectedStyle
+	}
+	if node.Style != (tcell.Style{}) {
+		return node.Style
+	}
+	return t.Style
+}
+
+// drawTreeLines draws the tree connection lines
+func (t *TreeView) drawTreeLines(x, y, level int, node *TreeNode) {
+	if !t.ShowLines || level == 0 {
+		return
+	}
+
+	// Draw vertical lines for previous levels
+	lineX := x
+	for i := 0; i < level*t.Indent; i++ {
+		char := ' '
+		if i%t.Indent == 0 && i < (level-1)*t.Indent {
+			char = '│'
+		}
+		t.Screen.SetContent(lineX+i, y, char, nil, t.Style)
+	}
+
+	// Draw connection to parent
+	if node.Parent != nil {
+		isLast := node == node.Parent.Children[len(node.Parent.Children)-1]
+		connX := x + (level-1)*t.Indent
+		if isLast {
+			t.Screen.SetContent(connX, y, '└', nil, t.Style)
+		} else {
+			t.Screen.SetContent(connX, y, '├', nil, t.Style)
+		}
+		for i := 1; i < t.Indent; i++ {
+			t.Screen.SetContent(connX+i, y, '─', nil, t.Style)
+		}
+	}
+}
+
+// drawNodeText draws the node text and expand/collapse indicator
+func (t *TreeView) drawNodeText(x, y, level int, node *TreeNode, style tcell.Style) {
+	// Draw expand/collapse indicator
+	textX := x + level*t.Indent
+	if len(node.Children) > 0 {
+		if node.Expanded {
+			t.Screen.SetContent(textX, y, '▼', nil, style)
+		} else {
+			t.Screen.SetContent(textX, y, '▶', nil, style)
+		}
+		textX += 2
+	}
+
+	// Draw node text
+	for i, r := range node.Text {
+		if textX+i >= t.X+t.Width {
+			break
+		}
+		t.Screen.SetContent(textX+i, y, r, nil, style)
+	}
+}
+
 // drawNode recursively draws a node and its children
 func (t *TreeView) drawNode(node *TreeNode, x, y, level int) {
 	if t.VisibleNodes-t.ScrollOffset >= t.Height {
@@ -77,57 +141,16 @@ func (t *TreeView) drawNode(node *TreeNode, x, y, level int) {
 		// Calculate actual y position
 		actualY := y + t.VisibleNodes - t.ScrollOffset
 
-		// Draw node
-		style := t.Style
-		if node == t.Selected {
-			style = t.SelectedStyle
-		} else if node.Style != (tcell.Style{}) {
-			style = node.Style
-		}
+		// Get node style
+		style := t.getNodeStyle(node)
 
-		// Draw tree lines if enabled
-		if t.ShowLines && level > 0 {
-			lineX := x
-			for i := 0; i < level*t.Indent; i++ {
-				char := ' '
-				if i%t.Indent == 0 && i < (level-1)*t.Indent {
-					char = '│'
-				}
-				t.Screen.SetContent(lineX+i, actualY, char, nil, t.Style)
-			}
+		// Draw tree lines
+		t.drawTreeLines(x, actualY, level, node)
 
-			// Draw connection to parent
-			if node.Parent != nil {
-				isLast := node == node.Parent.Children[len(node.Parent.Children)-1]
-				if isLast {
-					t.Screen.SetContent(x+(level-1)*t.Indent, actualY, '└', nil, t.Style)
-				} else {
-					t.Screen.SetContent(x+(level-1)*t.Indent, actualY, '├', nil, t.Style)
-				}
-			}
-		}
-
-		// Draw expand/collapse indicator
-		nodeX := x + level*t.Indent
-		if len(node.Children) > 0 {
-			if node.Expanded {
-				t.Screen.SetContent(nodeX, actualY, '▼', nil, style)
-			} else {
-				t.Screen.SetContent(nodeX, actualY, '▶', nil, style)
-			}
-			nodeX += 2
-		} else {
-			nodeX += 2
-		}
-
-		// Draw node text
-		for i, r := range []rune(node.Text) {
-			if nodeX+i >= t.X+t.Width {
-				break
-			}
-			t.Screen.SetContent(nodeX+i, actualY, r, nil, style)
-		}
+		// Draw node text and expand/collapse indicator
+		t.drawNodeText(x, actualY, level, node, style)
 	}
+
 	t.VisibleNodes++
 
 	// Draw children if expanded

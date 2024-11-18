@@ -124,6 +124,62 @@ func (m *MultiMeter) drawBorder() {
 	}
 }
 
+// drawLabel draws a label for a meter item
+func (m *MultiMeter) drawLabel(x, y int, item MeterItem) {
+	labelStyle := m.LabelStyle
+	if item.Style != (tcell.Style{}) {
+		labelStyle = item.Style
+	}
+	for i, r := range item.Label {
+		if i >= m.LabelWidth {
+			break
+		}
+		m.Screen.SetContent(x+i, y, r, nil, labelStyle)
+	}
+}
+
+// drawMeterBar draws a meter bar for a meter item
+func (m *MultiMeter) drawMeterBar(x, y, width int, item MeterItem) {
+	// Calculate value percentage
+	percentage := item.Value / item.MaxValue
+	if percentage > 1.0 {
+		percentage = 1.0
+	}
+
+	// Calculate filled width
+	filledWidth := int(float64(width) * percentage)
+	if filledWidth > width {
+		filledWidth = width
+	}
+
+	// Draw filled part
+	style := m.Style
+	if item.Style != (tcell.Style{}) {
+		style = item.Style
+	}
+	for i := 0; i < filledWidth; i++ {
+		m.Screen.SetContent(x+i, y, '█', nil, style)
+	}
+
+	// Draw empty part
+	emptyStyle := style.Background(tcell.ColorBlack)
+	for i := filledWidth; i < width; i++ {
+		m.Screen.SetContent(x+i, y, '░', nil, emptyStyle)
+	}
+}
+
+// drawValue draws a value for a meter item
+func (m *MultiMeter) drawValue(x, y int, item MeterItem) {
+	valueStr := formatValue(item.Value)
+	style := m.Style
+	if item.Style != (tcell.Style{}) {
+		style = item.Style
+	}
+	for i, r := range valueStr {
+		m.Screen.SetContent(x+i, y, r, nil, style)
+	}
+}
+
 // drawVertical draws meters vertically
 func (m *MultiMeter) drawVertical(startX, startY int) {
 	availableHeight := m.Height
@@ -148,57 +204,17 @@ func (m *MultiMeter) drawVertical(startX, startY int) {
 
 		// Draw label
 		if m.ShowLabels {
-			labelStyle := m.LabelStyle
-			if item.Style != (tcell.Style{}) {
-				labelStyle = item.Style
-			}
-			for i, r := range item.Label {
-				if i >= m.LabelWidth {
-					break
-				}
-				m.Screen.SetContent(startX+i, y, r, nil, labelStyle)
-			}
+			m.drawLabel(startX, y, item)
 			y++
 		}
 
 		// Draw meter
-		meterWidth := m.Width - 2
-		if m.ShowBorder {
-			meterWidth -= 2
-		}
-		filledWidth := int(float64(meterWidth) * (item.Value / item.MaxValue))
-		if filledWidth > meterWidth {
-			filledWidth = meterWidth
-		}
-
-		style := m.Style
-		if item.Style != (tcell.Style{}) {
-			style = item.Style
-		}
-
-		// Draw meter background
-		for x := 0; x < meterWidth; x++ {
-			m.Screen.SetContent(startX+x, y, '░', nil, style)
-		}
-
-		// Draw meter fill
-		for x := 0; x < filledWidth; x++ {
-			fillStyle := style
-			if len(item.GradientColors) > 0 {
-				progress := float64(x) / float64(meterWidth)
-				colorIndex := int(progress * float64(len(item.GradientColors)-1))
-				fillStyle = fillStyle.Foreground(item.GradientColors[colorIndex])
-			}
-			m.Screen.SetContent(startX+x, y, '█', nil, fillStyle)
-		}
+		m.drawMeterBar(startX, y, m.Width-2, item)
 		y++
 
 		// Draw value
 		if m.ShowValues {
-			value := fmt.Sprintf("%.1f%%", item.Value)
-			for i, r := range value {
-				m.Screen.SetContent(startX+i, y, r, nil, style)
-			}
+			m.drawValue(startX, y, item)
 			y++
 		}
 
@@ -213,9 +229,10 @@ func (m *MultiMeter) drawHorizontal(startX, startY int) {
 		availableWidth -= 2
 	}
 
-	itemWidth := m.Width / len(m.Items)
-	if itemWidth < 10 {
-		itemWidth = 10
+	// Calculate item width
+	itemWidth := availableWidth / len(m.Items)
+	if itemWidth < 1 {
+		itemWidth = 1
 	}
 
 	x := startX
@@ -224,61 +241,22 @@ func (m *MultiMeter) drawHorizontal(startX, startY int) {
 			break
 		}
 
+		y := startY
+		labelWidth := itemWidth
+
 		// Draw label
 		if m.ShowLabels {
-			labelStyle := m.LabelStyle
-			if item.Style != (tcell.Style{}) {
-				labelStyle = item.Style
-			}
-			label := truncateString(item.Label, itemWidth)
-			for i, r := range label {
-				m.Screen.SetContent(x+i, startY, r, nil, labelStyle)
-			}
+			m.drawLabel(x, y, item)
+			y++
 		}
 
 		// Draw meter
-		meterY := startY
-		if m.ShowLabels {
-			meterY++
-		}
-
-		style := m.Style
-		if item.Style != (tcell.Style{}) {
-			style = item.Style
-		}
-
-		meterWidth := itemWidth - 2
-		filledWidth := int(float64(meterWidth) * (item.Value / item.MaxValue))
-		if filledWidth > meterWidth {
-			filledWidth = meterWidth
-		}
-
-		// Draw meter background
-		for i := 0; i < meterWidth; i++ {
-			m.Screen.SetContent(x+i, meterY, '░', nil, style)
-		}
-
-		// Draw meter fill
-		for i := 0; i < filledWidth; i++ {
-			fillStyle := style
-			if len(item.GradientColors) > 0 {
-				progress := float64(i) / float64(meterWidth)
-				colorIndex := int(progress * float64(len(item.GradientColors)-1))
-				fillStyle = fillStyle.Foreground(item.GradientColors[colorIndex])
-			}
-			m.Screen.SetContent(x+i, meterY, '█', nil, fillStyle)
-		}
+		m.drawMeterBar(x, y, labelWidth, item)
+		y++
 
 		// Draw value
 		if m.ShowValues {
-			value := fmt.Sprintf("%.1f%%", item.Value)
-			valueY := meterY + 1
-			for i, r := range value {
-				if i >= itemWidth {
-					break
-				}
-				m.Screen.SetContent(x+i, valueY, r, nil, style)
-			}
+			m.drawValue(x, y, item)
 		}
 
 		x += itemWidth + m.Spacing

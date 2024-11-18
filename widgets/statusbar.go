@@ -52,13 +52,8 @@ func (s *StatusBar) ClearItems() {
 	s.Items = nil
 }
 
-// Draw draws the status bar
-func (s *StatusBar) Draw() {
-	if len(s.Items) == 0 {
-		return
-	}
-
-	// Calculate total minimum width and flexible width
+// calculateItemWidths calculates the minimum and flexible widths for all items
+func (s *StatusBar) calculateItemWidths() (int, int) {
 	totalMinWidth := 0
 	totalFlexWidth := 0
 	for _, item := range s.Items {
@@ -71,12 +66,11 @@ func (s *StatusBar) Draw() {
 			totalFlexWidth += item.MaxWidth - minWidth
 		}
 	}
+	return totalMinWidth, totalFlexWidth
+}
 
-	// Calculate available width for flexible items
-	availableWidth := s.Width
-	extraWidth := availableWidth - totalMinWidth
-
-	// Distribute extra width among flexible items
+// distributeExtraWidth distributes extra width among flexible items
+func (s *StatusBar) distributeExtraWidth(extraWidth, totalFlexWidth int) {
 	if extraWidth > 0 && totalFlexWidth > 0 {
 		for i := range s.Items {
 			if s.Items[i].MaxWidth > s.Items[i].MinWidth {
@@ -89,40 +83,67 @@ func (s *StatusBar) Draw() {
 			}
 		}
 	}
+}
+
+// drawItem draws a single status bar item
+func (s *StatusBar) drawItem(x int, item StatusItem) int {
+	text := item.Text
+	width := item.MinWidth
+	if width == 0 {
+		width = len(text) + s.Padding*2
+	}
+
+	// Add padding
+	if s.Padding > 0 {
+		text = strings.Repeat(" ", s.Padding) + text + strings.Repeat(" ", s.Padding)
+	}
+
+	// Truncate or pad text to fit width
+	if len(text) > width {
+		text = text[:width]
+	} else if len(text) < width {
+		switch item.Alignment {
+		case AlignLeft:
+			text = text + strings.Repeat(" ", width-len(text))
+		case AlignRight:
+			text = strings.Repeat(" ", width-len(text)) + text
+		case AlignCenter:
+			leftPad := (width - len(text)) / 2
+			rightPad := width - len(text) - leftPad
+			text = strings.Repeat(" ", leftPad) + text + strings.Repeat(" ", rightPad)
+		}
+	}
+
+	// Draw text
+	style := item.Style
+	if style == tcell.StyleDefault {
+		style = s.Style
+	}
+	for i, r := range text {
+		s.Screen.SetContent(x+i, s.Y, r, nil, style)
+	}
+
+	return width
+}
+
+// Draw draws the status bar
+func (s *StatusBar) Draw() {
+	if len(s.Items) == 0 {
+		return
+	}
+
+	// Calculate widths
+	totalMinWidth, totalFlexWidth := s.calculateItemWidths()
+
+	// Calculate and distribute extra width
+	availableWidth := s.Width
+	extraWidth := availableWidth - totalMinWidth
+	s.distributeExtraWidth(extraWidth, totalFlexWidth)
 
 	// Draw items
 	x := s.X
 	for _, item := range s.Items {
-		text := item.Text
-		style := item.Style
-		if style == (tcell.Style{}) {
-			style = s.Style
-		}
-
-		// Add padding
-		text = strings.Repeat(" ", s.Padding) + text + strings.Repeat(" ", s.Padding)
-
-		// Truncate or pad text to fit width
-		width := item.MinWidth
-		if len(text) > width {
-			text = text[:width]
-		} else if len(text) < width {
-			switch item.Alignment {
-			case AlignLeft:
-				text = text + strings.Repeat(" ", width-len(text))
-			case AlignRight:
-				text = strings.Repeat(" ", width-len(text)) + text
-			case AlignCenter:
-				leftPad := (width - len(text)) / 2
-				rightPad := width - len(text) - leftPad
-				text = strings.Repeat(" ", leftPad) + text + strings.Repeat(" ", rightPad)
-			}
-		}
-
-		// Draw text
-		for i, r := range text {
-			s.Screen.SetContent(x+i, s.Y, r, nil, style)
-		}
+		width := s.drawItem(x, item)
 		x += width
 	}
 }
